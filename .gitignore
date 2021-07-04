@@ -1,2 +1,5 @@
-plan.txt
 interpreter
+test.c
+*.txt
+*.ba
+*.lx
