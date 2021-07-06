@@ -34,6 +34,10 @@ STATE comment_state = {"comment"};
 STATE int_const_state = {"integer constant"};
 
 
+char *variables[1000];
+int variableValues[1000];
+int variableIndex = 0;
+
 void main(int argc, char *argv[]) {
     // handle given filename argument
 	char readFilename[256];
@@ -46,6 +50,10 @@ void main(int argc, char *argv[]) {
 
 	char token_stack[100]; // tokens are written to file from this string
 	token_stack[0] = '\0'; // empty string
+
+	char statement_stack[1000];
+	statement_stack[0] = '\0';
+
 
 	FILE *readFilePointer = fopen(readFilename, "r"); // read files from here
 	FILE *writeFilePointer = fopen(writeFilename, "w"); // write to this file

@@ -9,6 +9,28 @@ int variableIndex = 0;
 int values[1000] = { 0 };
 int valueIndex = 0;
 
+
+void evaluate(char *statement) {
+    char *tokens[1000] = {'\0'};
+    int wordCount = 0;
+    char *splitedWords = strtok(command[i], " ");
+    while (splitedWords != NULL) {
+        tokens[wordCount++] = splitedWords;
+        splitedWords = strtok(NULL, " ");
+    }
+
+    if (!strcmp(tokens[0], "Keyword") && !strcmp(tokens[1],"int")) {
+        if (!strcmp(tokens[2], "Identifier")) {
+            if (int i; i < variableIndex; i++)
+            if (!strcmp(tokens[4], "EndOfLine")) {
+                
+            }   
+        }
+    } else {
+        printf("ERROR: Statement should start with a keyword!");
+    }
+}
+
 // !!SPLIT FUNCTION IS NOT FULLY WORKING!!
 // Split function
 void split(char *token[], char *target[1000]){
