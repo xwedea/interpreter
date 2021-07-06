@@ -120,9 +120,12 @@ void loop(char *token[])
             // Operations when it's a code block
             // Parsing code recursively
         }
-
-        // Operations when it's not a code block
-        // Parsing code recursively
+        else
+        {
+            // Operations when it's not a code block
+            // Parsing code recursively
+            printf("* %d\n", times);
+        }
     }
 }
 
@@ -134,8 +137,8 @@ int main()
                             "Keyword move IntConstant 5 Keyword to Identifier firstVar EndOfLine",
                             "Keyword move IntConstant 2 Keyword to Identifier second EndOfLine",
                             "Keyword sub IntConstant 1 Keyword from Identifier firstVar EndOfLine",
-                            "Keyword out Identifier firstVar Seperator IntConstant 78 Seperator StringConstant lmao Seperator newline StringConstant mmm EndOfLine",
-                            "Keyword loop IntConstant 10 Keyword times out \"*\""};
+                            "Keyword out Identifier firstVar Seperator IntConstant 78 Seperator StringConstant \"lmao\" Seperator newline StringConstant mmm EndOfLine",
+                            "Keyword loop Identifier firstVar Keyword times out \"*\""};
     for(int i=0; i<7; i++)
     {
         // Splitting ritual and creating a readable command-set for the functions
