@@ -7,7 +7,6 @@
 char *variables[1000];
 int variableIndex = 0;
 int values[1000] = { 0 };
-int valueIndex = 0;
 
 
 void evaluate(char *statement) {
@@ -57,7 +56,7 @@ int getIndex (char *name)
 void declaration(char *token[])
 {
     variables[variableIndex++] = token[3];
-    values[valueIndex++] = 0;
+    values[variableIndex] = 0;
 }
 
 // Assignment functionality
