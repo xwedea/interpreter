@@ -9,7 +9,7 @@ int variableIndex = 0;
 int values[1000] = { 0 };
 int valueIndex = 0;
 
-// !!NOT FULLY WORKING!!
+// !!SPLIT FUNCTION IS NOT FULLY WORKING!!
 // Split function
 void split(char *token[], char *target[1000]){
     int wordCount = 0;
