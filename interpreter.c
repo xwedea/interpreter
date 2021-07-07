@@ -16,7 +16,7 @@
 #define QUOTATION "\""
 #define UNDERSCORE "_"
 #define SPACE " "
-#define KEYWORDS "int move to loop times out newline add sub from"
+#define KEYWORDS "int move to loop times out newline add sub from newline"
 
 /**
 Instead of initializing a state string variable and modifying it every time;
@@ -37,6 +37,8 @@ STATE int_const_state = {"integer constant"};
 char *variables[1000];
 int variableValues[1000];
 int variableIndex = 0;
+
+int line = 0;
 
 void main(int argc, char *argv[]) {
     // handle given filename argument
