@@ -282,9 +282,12 @@ void evaluate(char *statement) {
     } 
     // output
     else if (!strcmp(tokens[1],"out")) {
+        if ((tokens_size -2) % 3 != 0){
+            printf("ERROR: line: %d | Invalid out syntax\n", line);
+            exit(0);
+        }
         int outsize = (tokens_size - 2) / 3; // how many inputs does output statement have
         for (int i = 1; i <= outsize; i++) {
-            printf("%s\n", tokens[i*3 + 1]);
             if (i != outsize && !strcmp(tokens[i*3 + 1], "Seperator")) {
                 if(!strcmp(tokens[i*3 -1], "Identifier") || !strcmp(tokens[i*3 -1], "Keyword") || !strcmp(tokens[i*3 -1], "StringConstant") || !strcmp(tokens[i*3 -1], "IntConstant")) {
                     if (!variableExists(tokens[i*3]) && !strcmp(tokens[i * 3 - 1], "Identifier"))
@@ -307,19 +310,7 @@ void evaluate(char *statement) {
                     out(tokens);
                 }
             }
-            else if (i != outsize && strcmp(tokens[i*3 + 1], "Seperator")) {
-                printf("ERROR: line: %d | Out inputs should be seperated by commas.\n", line);
-                exit(0);
-            }
-            else if (i == outsize && strcmp(tokens[i*3 + 1], "EndOfLine")) {
-                printf("ERROR: line: %d | Statement should end with EndOfLine\n", line);
-                exit(0);
-            }
-            else if (i != outsize && !strcmp(tokens[i*3 + 1], "EndOfLine")) {
-                printf("ERROR: line: %d | Invalid usage of EndOfLine\n", line);
-                exit(0);
-            }
-            else if (strcmp(tokens[i*3 + 1], "Seperator") && strcmp(tokens[i*3 + 1], "EndOfLine")) {
+            else {
                 if (strcmp(tokens[i*3 +1], "Seperator"))
                     printf("ERROR: line: %d | Out inputs should be seperated by commas.\n", line);
                 else if (strcmp(tokens[i*3 +1], "EndOfLine")){
@@ -329,6 +320,7 @@ void evaluate(char *statement) {
             }
         }
     }
+
     // loop
     else if (!strcmp(tokens[1],"loop")) {
         if (!strcmp(tokens[2], "Identifier") || !strcmp(tokens[2], "IntConstant")) {
@@ -375,7 +367,7 @@ int main()
         "Keyword move IntConstant 10 Keyword to Identifier firstVar EndOfLine",
         "Keyword add IntConstant 5 Keyword to Identifier second EndOfLine",
         "Keyword sub Identifier second Keyword from Identifier firstVar EndOfLine",
-        "Keyword out Identifier firstVar Seperator Keyword newline Seperator StringConstant \"lmao\" Keyword newline EndOfLine",
+        "Keyword out Identifier firstVar Identifier am Keyword newline Seperator StringConstant \"lmao\" Seperator Keyword newline EndOfLine",
         "Keyword out Identifier firstVar Seperator IntConstant 78 Seperator StringConstant \"lmao\" Seperator Keyword newline Seperator StringConstant mmm EndOfLine",
     };
 
