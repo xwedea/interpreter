@@ -97,36 +97,16 @@ void out(char *token[])
     }
 }
 
-void loop(char *token[])
+void loop(char *token[], int *tokens_size)
 {
-    int times = 0;
+    // printf("LOOP CALLED: TOKENSIZE: %d", tokens_size);
 
-    // Finding the valid time for the specific command
-    if(!strcmp(token[2], "Identifier"))
-        times = values[getIndex(token[3])];
-
-    else if(!strcmp(token[2], "IntConstant"))
-        times = atoi(token[3]);
-
-    // Main loop
-    for(times; times >= 0; times--)
-    {
-        // Update the variable if we loop with a variable
-        if(!strcmp(token[2], "Identifier"))
-            values[getIndex(token[3])] = times;
-
-        if(!strcmp(token[2], "OpenBlock"))
-        {
-            // Operations when it's a code block
-            // Parsing code recursively
-        }
-        else
-        {
-            // Operations when it's not a code block
-            // Parsing code recursively
-            printf("* %d\n", times);
-        }
-    }
+    // check if it is a whole loop statement ( it doesnt have to be detailed)
+    // if full loop:
+    //  loop_inside = ""
+    //  for (token in tokens[6:-1]) /// assuming it is a block if it is one line it will be tokens[6:]
+    //  loop_inside += token
+    //  evaluate(loop_inside) 
 }
 
 // Declaration functionality
@@ -151,6 +131,7 @@ void add(char *token[])
 
     printf("added %s to %s | new value = %d\n", token[3], variables[index], values[index]);
 }
+
 
 // Subtraction functionality
 void sub(char *tokens[])
@@ -178,12 +159,18 @@ void evaluate(char *statement) {
         tokens_size++;
     }
 
+    for (int i = 0; i < tokens_size; i++) {
+        printf("%s ", tokens[i]);
+    }
+    // printf("tokens[3]: %s\n", tokens[3]);
+
     char type[20] = {"\0"}; 
 
     // declaration
     if (!strcmp(tokens[1],"int")) {
         strcpy(type, "Declaration");
         // type = "Declaration";
+        // statement_stack = "Keyword int Identifier varname endofline"
         if (!strcmp(tokens[2], "Identifier")) {
             if (variableExists(tokens[3])) {
                 printf("ERROR at line %d: Double declaration of variable %s\n", line, tokens[3]);
@@ -191,6 +178,7 @@ void evaluate(char *statement) {
             }
             if (!strcmp(tokens[4], "EndOfLine")) {
                 declaration(tokens);
+                // statement = '\0';
             } else {
                 syntaxError(type, "EndOfLine", tokens[3]);
             }   
@@ -213,6 +201,8 @@ void evaluate(char *statement) {
                     }
                     if (!strcmp(tokens[8], "EndOfLine")) {
                         move(tokens);
+                        statement = '\0';
+
                     } else {
                         syntaxError(type, "EndOfLine", tokens[7]);
                     }
@@ -240,6 +230,7 @@ void evaluate(char *statement) {
                     }
                     if (!strcmp(tokens[8], "EndOfLine")) {
                         add(tokens);
+                        statement = '\0';
                     } else {
                         syntaxError(type, "EndOfLine", tokens[7]);
                     }
@@ -267,6 +258,7 @@ void evaluate(char *statement) {
                     }
                     if (!strcmp(tokens[8], "EndOfLine")) {
                         sub(tokens);
+                        statement = '\0';
                     } else {
                         syntaxError(type, "EndOfLine", tokens[7]);
                     }
@@ -308,13 +300,14 @@ void evaluate(char *statement) {
                         exit(0);
                     }
                     out(tokens);
+                    statement = '\0';
                 }
             }
             else {
                 if (strcmp(tokens[i*3 +1], "Seperator"))
                     printf("ERROR: line: %d | Out inputs should be seperated by commas.\n", line);
                 else if (strcmp(tokens[i*3 +1], "EndOfLine")){
-                    printf("ERROR: line: %d | Out inputs should end with \".\"\n", line);
+                    printf("ERROR: line: %d | Out inputs should end with EndOfLine\n", line);
                 }
                 exit(0);
             }
@@ -328,21 +321,25 @@ void evaluate(char *statement) {
                 undeclarationError(tokens[3]);
 
             if (!strcmp(tokens[5], "times")) {
-                if (!strcmp(tokens[6], "OpenBlock")) {
-                    if (!strcmp(tokens[6], "OpenBlock")) {
-                        if (!strcmp(tokens[tokens_size-1], "OpenBlock")) {
-                            printf("call loop()");
-                        } 
-                        else {
-                            printf("ERROR at line %d: \n", line);
-                            exit(0);
-                        }
-                    } 
-                    else
-                        syntaxError(type, "OpenBlock", tokens[5]);
-                } 
-                else
-                    syntaxError(type, "OpenBlock", tokens[5]);
+                printf("call loop()");
+                // if (!strcmp(tokens[6], "OpenBlock")) {
+                //     if (!strcmp(tokens[6], "OpenBlock")) {
+                //         if (!strcmp(tokens[tokens_size-1], "CloseBlock")) {
+                //             printf("call loop()");
+                //         } 
+                //         else {
+                //             printf("ERROR at line %d: \n", line);
+                //             exit(0);
+                //         }
+                //     } 
+                //     else
+                //         syntaxError(type, "OpenBlock", tokens[5]);
+                // }
+                // else if (!strcmp(tokens[6], "Keyword")) {
+                //     printf("call loop()");
+                // } 
+                // else
+                //     syntaxError(type, "OpenBlock or a starting Keyword", tokens[5]);
             } 
             else
                 syntaxError(type, "Keyword times", tokens[4]);
@@ -367,16 +364,38 @@ int main()
         "Keyword move IntConstant 10 Keyword to Identifier firstVar EndOfLine",
         "Keyword add IntConstant 5 Keyword to Identifier second EndOfLine",
         "Keyword sub Identifier second Keyword from Identifier firstVar EndOfLine",
-        "Keyword out Identifier firstVar Identifier am Keyword newline Seperator StringConstant \"lmao\" Seperator Keyword newline EndOfLine",
-        "Keyword out Identifier firstVar Seperator IntConstant 78 Seperator StringConstant \"lmao\" Seperator Keyword newline Seperator StringConstant mmm EndOfLine",
+        "Keyword loop Identifier firstVar Keyword times Keyword add IntConsant 5 Keyword to Identifier firstVar EndOfLine"
+
+        // "Keyword out Identifier firstVar Identifier am Keyword newline Seperator StringConstant \"lmao\" Seperator Keyword newline EndOfLine",
+        // "Keyword out Identifier firstVar Seperator IntConstant 78 Seperator StringConstant \"lmao\" Seperator Keyword newline Seperator StringConstant mmm EndOfLine",
     };
 
-    evaluate(test[0]);
-    evaluate(test[1]);
-    evaluate(test[2]);
-    evaluate(test[3]);
-    evaluate(test[4]);
-    evaluate(test[5]);
+    char stack_test[1000];
+    stack_test[0] = '\0';
+    // printf("statement stack: %s\n", stack_test);
+
+
+    strcpy(stack_test, "Keyword int Identifier firstVar EndOfLine");
+    // printf("statement stack: %s\n", stack_test);
+    evaluate(stack_test);
+
+    strcpy(stack_test, "Keyword int Identifier second EndOfLine");
+    // printf("statement stack: %s\n", stack_test);
+    evaluate(stack_test);
+
+    // strcpy(stack_test, "Keyword move IntConstant 10 Keyword to Identifier firstVar EndOfLine");
+    // evaluate(stack_test);
+
+    // strcpy(statement_stack, "Keyword loop Identifier firstVar Keyword times Keyword add IntConsant 5 Keyword to Identifier firstVar EndOfLine");
+    // evaluate(statement_stack);
+
+
+    // evaluate(test[0]);
+    // evaluate(test[1]);
+    // evaluate(test[2]);
+    // evaluate(test[3]);
+    // evaluate(test[4]);
+    // evaluate(test[5]);
     // evaluate(test[6]);
 
 
@@ -387,7 +406,7 @@ int main()
                             "Keyword move IntConstant 2 Keyword to Identifier second EndOfLine",
                             "Keyword sub IntConstant 1 Keyword from Identifier firstVar EndOfLine",
                             "Keyword out Identifier firstVar Seperator IntConstant 78 Seperator StringConstant \"lmao\" Seperator newline StringConstant mmm EndOfLine",
-                            "Keyword loop Identifier firstVar Keyword times out \"*\""};
+                            "Keyword loop Identifier firstVar Keyword times Keyword add IntConsant 5 Keyword to Identifier firstVar EndOfLine \"*\""};
    
     // for(int i=0; i<7; i++)
     // {
