@@ -150,7 +150,6 @@ void add(char *token[])
             values[index] += atoi(token[3]);
 
     printf("added %s to %s | new value = %d\n", token[3], variables[index], values[index]);
-
 }
 
 // Subtraction functionality
@@ -283,8 +282,48 @@ void evaluate(char *statement) {
     } 
     // output
     else if (!strcmp(tokens[1],"out")) {
-        // couldn't solve it yet
-        // initialized a variable called tokens_size, may use it here
+        int outsize = (tokens_size - 2) / 3; // how many inputs does output statement have
+        for (int i = 1; i <= outsize; i++) {
+            printf("%s\n", tokens[i*3 + 1]);
+            if (i != outsize && !strcmp(tokens[i*3 + 1], "Seperator")) {
+                if(!strcmp(tokens[i*3 -1], "Identifier") || !strcmp(tokens[i*3 -1], "Keyword") || !strcmp(tokens[i*3 -1], "StringConstant") || !strcmp(tokens[i*3 -1], "IntConstant")) {
+                    if (!variableExists(tokens[i*3]) && !strcmp(tokens[i * 3 - 1], "Identifier"))
+                        undeclarationError(tokens[i * 3]);
+                    if (!strcmp(tokens[i*3 -1], "Keyword") && strcmp(tokens[i*3], "newline")){
+                        printf("ERROR: line: %d | Invalid Keyword in out statement\n", line, tokens[i*3]);
+                        exit(0);
+                    }
+                    continue;
+                }
+            }
+            else if (i == outsize && !strcmp(tokens[i*3 + 1], "EndOfLine")) {
+                if(!strcmp(tokens[i*3 -1], "Identifier") || !strcmp(tokens[i*3 -1], "Keyword") || !strcmp(tokens[i*3 -1], "StringConstant") || !strcmp(tokens[i*3 -1], "IntConstant")) {
+                    if (!variableExists(tokens[i*3]) && !strcmp(tokens[i * 3 - 1], "Identifier"))
+                        undeclarationError(tokens[i * 3]);
+                    if (!strcmp(tokens[i*3 -1], "Keyword") && strcmp(tokens[i*3], "newline")){
+                        printf("ERROR: line: %d | Keyword %s is not a valid input for out statement\n", line, tokens[i*3]);
+                        exit(0);
+                    }
+                    out(tokens);
+                }
+            }
+            else if (i == outsize && strcmp(tokens[i*3 + 1], "EndOfLine")) {
+                syntaxError(type, "EndOfLine", tokens[i*3]);
+            }
+            else if (i != outsize && !strcmp(tokens[i*3 + 1], "EndOfLine")) {
+                printf("ERROR: line: %d | Invalid usage of EndOfLine\n", line);
+                exit(0);
+            }
+            else if (strcmp(tokens[i*3 + 1], "Seperator") && strcmp(tokens[i*3 + 1], "EndOfLine")) {
+                printf("dasak error: ");
+                if (strcmp(tokens[i*3 +1], "Seperator"))
+                    printf("ERROR: line: %d | Out inputs should be seperated by commas.\n", line);
+                else if (strcmp(tokens[i*3 +1], "EndOfLine")){
+                    printf("ERROR: line: %d | Out inputs should end with \".\"\n", line);
+                }
+                exit(0);
+            }
+        }
     }
     else {
         printf("ERROR at line %d: Statement should start with a valid keyword!\n", line);
@@ -301,7 +340,8 @@ int main()
         "Keyword move IntConstant 10 Keyword to Identifier firstVar EndOfLine",
         "Keyword add IntConstant 5 Keyword to Identifier second EndOfLine",
         "Keyword sub Identifier second Keyword from Identifier firstVar EndOfLine",
-        "Keyword out Identifier firstVar Seperator IntConstant 78 Seperator StringConstant \"lmao\" Seperator newline StringConstant mmm EndOfLine",
+        "Keyword out Identifier firstVar Seperator Keyword newline Seperator StringConstant \"lmao\" EndOfLine",
+        "Keyword out Identifier firstVar Seperator IntConstant 78 Seperator StringConstant \"lmao\" Seperator Keyword newline Seperator StringConstant mmm EndOfLine",
     };
 
     evaluate(test[0]);
@@ -309,7 +349,8 @@ int main()
     evaluate(test[2]);
     evaluate(test[3]);
     evaluate(test[4]);
-    // evaluate(test[5]);
+    evaluate(test[5]);
+    // evaluate(test[6]);
 
 
     char command[7][1000] = {"Keyword int Identifier firstVar EndOfLine",

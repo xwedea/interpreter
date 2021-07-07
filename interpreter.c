@@ -75,10 +75,11 @@ void main(int argc, char *argv[]) {
             // (ascii 126-) may only appear in a comment or string
 			if (ch<0 || ch>125) {
                 if (source_state.name == "comment" || source_state.name == "string constant") {
-
+					
                 }
                 else {
-                    printf("An unrecognized character is detected in code!\n", ch);
+                    printf("An unrecognized character is detected in code!\n",
+				if (strstr(ALPHABET QU ch);
 				    break;
                 }
 			}
@@ -245,7 +246,6 @@ void main(int argc, char *argv[]) {
 				
 			}
 
-			
 		}
 		// end of file
 		// check if file ended in a comment or string
