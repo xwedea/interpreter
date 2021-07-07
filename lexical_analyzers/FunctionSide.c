@@ -308,7 +308,8 @@ void evaluate(char *statement) {
                 }
             }
             else if (i == outsize && strcmp(tokens[i*3 + 1], "EndOfLine")) {
-                syntaxError(type, "EndOfLine", tokens[i*3]);
+                printf("ERROR: line: %d | Statement should end with EndOfLine\n", line);
+                exit(0);
             }
             else if (i != outsize && !strcmp(tokens[i*3 + 1], "EndOfLine")) {
                 printf("ERROR: line: %d | Invalid usage of EndOfLine\n", line);
@@ -340,7 +341,7 @@ int main()
         "Keyword move IntConstant 10 Keyword to Identifier firstVar EndOfLine",
         "Keyword add IntConstant 5 Keyword to Identifier second EndOfLine",
         "Keyword sub Identifier second Keyword from Identifier firstVar EndOfLine",
-        "Keyword out Identifier firstVar Seperator Keyword newline Seperator StringConstant \"lmao\" EndOfLine",
+        "Keyword out Identifier firstVar Seperator Keyword newline Seperator StringConstant \"lmao\" Keyword newline Seperator",
         "Keyword out Identifier firstVar Seperator IntConstant 78 Seperator StringConstant \"lmao\" Seperator Keyword newline Seperator StringConstant mmm EndOfLine",
     };
 
