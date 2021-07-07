@@ -307,6 +307,10 @@ void evaluate(char *statement) {
                     out(tokens);
                 }
             }
+            else if (i != outsize && strcmp(tokens[i*3 + 1], "Seperator")) {
+                printf("ERROR: line: %d | Out inputs should be seperated by commas.\n", line);
+                exit(0);
+            }
             else if (i == outsize && strcmp(tokens[i*3 + 1], "EndOfLine")) {
                 printf("ERROR: line: %d | Statement should end with EndOfLine\n", line);
                 exit(0);
@@ -316,7 +320,6 @@ void evaluate(char *statement) {
                 exit(0);
             }
             else if (strcmp(tokens[i*3 + 1], "Seperator") && strcmp(tokens[i*3 + 1], "EndOfLine")) {
-                printf("dasak error: ");
                 if (strcmp(tokens[i*3 +1], "Seperator"))
                     printf("ERROR: line: %d | Out inputs should be seperated by commas.\n", line);
                 else if (strcmp(tokens[i*3 +1], "EndOfLine")){
@@ -324,6 +327,37 @@ void evaluate(char *statement) {
                 }
                 exit(0);
             }
+        }
+    }
+    // loop
+    else if (!strcmp(tokens[1],"loop")) {
+        if (!strcmp(tokens[2], "Identifier") || !strcmp(tokens[2], "IntConstant")) {
+            if (!strcmp(tokens[2], "Identifier") && !variableExists(tokens[3]) ) 
+                undeclarationError(tokens[3]);
+
+            if (!strcmp(tokens[5], "times")) {
+                if (!strcmp(tokens[6], "OpenBlock")) {
+                    if (!strcmp(tokens[6], "OpenBlock")) {
+                        if (!strcmp(tokens[tokens_size-1], "OpenBlock")) {
+                            printf("call loop()");
+                        } 
+                        else {
+                            printf("ERROR at line %d: \n", line);
+                            exit(0);
+                        }
+                    } 
+                    else
+                        syntaxError(type, "OpenBlock", tokens[5]);
+                } 
+                else
+                    syntaxError(type, "OpenBlock", tokens[5]);
+            } 
+            else
+                syntaxError(type, "Keyword times", tokens[4]);
+            
+        } 
+        else {
+            syntaxError(type, "Identifier or IntConstant", tokens[1]);
         }
     }
     else {
@@ -341,7 +375,7 @@ int main()
         "Keyword move IntConstant 10 Keyword to Identifier firstVar EndOfLine",
         "Keyword add IntConstant 5 Keyword to Identifier second EndOfLine",
         "Keyword sub Identifier second Keyword from Identifier firstVar EndOfLine",
-        "Keyword out Identifier firstVar Seperator Keyword newline Seperator StringConstant \"lmao\" Keyword newline Seperator",
+        "Keyword out Identifier firstVar Seperator Keyword newline Seperator StringConstant \"lmao\" Keyword newline EndOfLine",
         "Keyword out Identifier firstVar Seperator IntConstant 78 Seperator StringConstant \"lmao\" Seperator Keyword newline Seperator StringConstant mmm EndOfLine",
     };
 
