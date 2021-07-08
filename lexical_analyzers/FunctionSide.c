@@ -167,34 +167,42 @@ void loop(char *tokens[], int tokens_size, char *type)
     char inside_loop[1000];
     inside_loop[0] = '\0';
 
+    char inside_loop_matris[100][1000];
+    int lines = 0;
     int times = 0;
 
+    char identifier[21];
+    int identifier_index;
+
     // Finding the valid time for the specific command
-    if(!strcmp(tokens[2], "Identifier"))
-        times = values[getIndex(tokens[3])];
+    if(!strcmp(tokens[2], "Identifier")) {
+        strcpy(identifier, tokens[3]);
+        identifier_index = getIndex(tokens[3]);
+        times = values[identifier_index];
+    }
+
 
     else if(!strcmp(tokens[2], "IntConstant"))
         times = atoi(tokens[3]);
-    // printf("LOOP CALLED: TOKENSIZE: %d | type: %s", tokens_size, type);
 
-    char inside_loop_matris[100][1000];
-    int lines = 0;
 
     if (!strcmp("oneline", type)) {
         for (int i = 6; i < tokens_size; i++) {
-            if (i != 6) {
-                strcat(inside_loop, " ");
+            strcat(inside_loop_matris[0], tokens[i]);
+            if (i != tokens_size-1) {
+                strcat(inside_loop_matris[0], " ");
             }
-            strcat(inside_loop, tokens[i]);
         }
+        lines = 1;
+        printf("%s\n", inside_loop_matris[0]);
     }
     else if (!strcmp("block", type)) {
         for (int i = 7; i < tokens_size; i++)
         {
+            strcat(inside_loop_matris[lines], tokens[i]);
             if (i != 6) {
                 strcat(inside_loop_matris[lines], " ");
             }
-            strcat(inside_loop_matris[lines], tokens[i]);
             if(!strcmp("EndOfLine", tokens[i]))
                 lines++;
         }
@@ -205,21 +213,18 @@ void loop(char *tokens[], int tokens_size, char *type)
 
 
     for (int i = 0; i < run_len;) {
-        for (int j = 0; j < lines - 1; j++) {
+        for (int j = 0; j < lines; j++) {
             strcat(run[i], inside_loop_matris[j]);
-            printf(run[i]);
             i++;
         }
     }
 
-    printf("%s\n", run[0]);
-    evaluate(run[0]);
-
-    // for (int i = 0; i < run_len; i++) {
-    //     evaluate(run[i]);
-    // }
-
-
+    for (int i = 0; i < run_len; i++) {
+        evaluate(run[i]);
+        if(!strcmp(tokens[2], "Identifier")) {
+            values[identifier_index]--;
+        }
+    }
 
 
     // printf("insideloop = %s\n", inside_loop_matris[0]);
@@ -447,24 +452,12 @@ int main()
         "Keyword move IntConstant 10 Keyword to Identifier firstVar EndOfLine",
         "Keyword add IntConstant 5 Keyword to Identifier second EndOfLine",
         "Keyword sub Identifier second Keyword from Identifier firstVar EndOfLine",
-        //"Keyword loop Identifier firstVar Keyword times Keyword add IntConsant 5 Keyword to Identifier firstVar EndOfLine",
-        "Keyword loop IntConstant 10 Keyword times OpenBlock Keyword add IntConstant 10 Keyword to Identifier firstVar EndOfLine Keyword sub IntConstant 10 Keyword from Identifier firstVar second EndOfLine CloseBlock"
+        "Keyword loop Identifier firstVar Keyword times Keyword add IntConstant 5 Keyword to Identifier second EndOfLine",
+        // "Keyword loop IntConstant 2 Keyword times OpenBlock Keyword add IntConsant 5 Keyword to Identifier firstVar EndOfLine Keyword sub IntConstant 10 Keyword from Identifier firstVar EndOfLine CloseBlock"
 
         // "Keyword out Identifier firstVar Identifier am Keyword newline Seperator StringConstant \"lmao\" Seperator Keyword newline EndOfLine",
         // "Keyword out Identifier firstVar Seperator IntConstant 78 Seperator StringConstant \"lmao\" Seperator Keyword newline Seperator StringConstant mmm EndOfLine",
     };
-
-    char stack_test[1000];
-    stack_test[0] = '\0';
-
-
-
-    // strcpy(test[0], "Keyword int Identifier firstVar EndOfLine");
-    // evaluate(test[0]);
-
-    // strcpy(test[1], "Keyword int Identifier second EndOfLine");
-    // evaluate(test[1]);
-
 
     evaluate(test[0]);
     evaluate(test[1]);
