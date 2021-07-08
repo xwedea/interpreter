@@ -97,14 +97,10 @@ void move(char *token[])
     printf("Moved %d to %s\n", values[index], variables[index]);
 }
 
-// Addition functionality
-
-
 // Print functionality
 void out(char *token[])
 {
     int counter = 0;
-
     // Looping through the array and execute all the possible executables
     while (token[counter] != NULL)
     {
@@ -115,13 +111,10 @@ void out(char *token[])
         }
         else if(!strcmp(token[counter], "Identifier"))
             printf("%d ", values[getIndex(token[counter + 1])]);
-
         else if(!strcmp(token[counter], "IntConstant"))
             printf("%s ", token[counter + 1]);
-
         else if(!strcmp(token[counter], "newline"))
             printf("\n");
-
         else if(!strcmp(token[counter], "StringConstant"))
             printf("%s ", token[counter + 1]);
 
@@ -437,7 +430,6 @@ void main(int argc, char *argv[]) {
 	char writeFilename[256];
 	snprintf(readFilename, sizeof(readFilename), "%s.ba", argv[1]);
 	snprintf(writeFilename, sizeof(writeFilename), "%s.lx", argv[1]);
-
 
 	STATE source_state = default_state; // FSA starts from default state
 
