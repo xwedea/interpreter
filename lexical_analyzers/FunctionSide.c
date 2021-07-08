@@ -105,12 +105,9 @@ void out(char *token[])
     }
 }
 
-
 // Declaration functionality
 void declaration(char *tokens[])
 {
-    // 0
-    // printf("%s\n", tokens[3]);
     variables[variableIndex] = tokens[3]; // 0 when using, then 1
     values[variableIndex] = 0; // 1
     printf("declared %s with value %d\n", variables[variableIndex], values[variableIndex]);
@@ -129,8 +126,6 @@ void add(char *token[])
     printf("added %s to %s | new value = %d\n", token[3], variables[index], values[index]);
 }
 
-
-// Subtraction functionality
 void sub(char *tokens[])
 {
     int index = getIndex(tokens[7]);
@@ -142,25 +137,7 @@ void sub(char *tokens[])
             values[index]-= atoi(tokens[3]);
 
     printf("subbed %s from %s | new value = %d\n", tokens[3], variables[index], values[index]);
-
 }
-
-// char *lineHolder = "";
-// for(int i = 6; strcmp(token[i - 1], "EndOfLine") ; i++)
-// {
-//     lineHolder = concat(lineHolder, token[i]);
-//     if(strcmp(token[i], "EndOfLine"))
-//         lineHolder = concat(lineHolder, " ");
-// }
-// evaluate(lineHolder);
-
-
-
-
-
-
-
-
 
 void loop(char *tokens[], int tokens_size, char *type)
 {
@@ -225,18 +202,6 @@ void loop(char *tokens[], int tokens_size, char *type)
             values[identifier_index]--;
         }
     }
-
-
-    // printf("insideloop = %s\n", inside_loop_matris[0]);
-    // printf("insideloop = %s\n", inside_loop_matris[1]);
-    // printf("lines = %d\n", lines);
-
-    // check if it is a whole loop statement ( it doesnt have to be detailed)
-    // if full loop:
-    //  loop_inside = ""
-    //  for (token in tokens[6:-1]) /// assuming it is a block if it is one line it will be tokens[6:]
-    //  loop_inside += token
-    //  evaluate(loop_inside)
 }
 
 void evaluate(char *statement) {
@@ -401,7 +366,6 @@ void evaluate(char *statement) {
             }
         }
     }
-
     // loop
     else if (!strcmp(tokens[1],"loop")) {
         if (!strcmp(tokens[2], "Identifier") || !strcmp(tokens[2], "IntConstant")) {
@@ -452,11 +416,8 @@ int main()
         "Keyword move IntConstant 10 Keyword to Identifier firstVar EndOfLine",
         "Keyword add IntConstant 5 Keyword to Identifier second EndOfLine",
         "Keyword sub Identifier second Keyword from Identifier firstVar EndOfLine",
-        "Keyword loop Identifier firstVar Keyword times Keyword add IntConstant 5 Keyword to Identifier second EndOfLine",
-        // "Keyword loop IntConstant 2 Keyword times OpenBlock Keyword add IntConsant 5 Keyword to Identifier firstVar EndOfLine Keyword sub IntConstant 10 Keyword from Identifier firstVar EndOfLine CloseBlock"
-
-        // "Keyword out Identifier firstVar Identifier am Keyword newline Seperator StringConstant \"lmao\" Seperator Keyword newline EndOfLine",
-        // "Keyword out Identifier firstVar Seperator IntConstant 78 Seperator StringConstant \"lmao\" Seperator Keyword newline Seperator StringConstant mmm EndOfLine",
+        "Keyword out Identifier firstVar Seperator Keyword newline Seperator StringConstant \"lmao\" Seperator Keyword newline EndOfLine",
+        "Keyword loop Identifier firstVar Keyword times Keyword add IntConstant 5 Keyword to Identifier second EndOfLine"
     };
 
     evaluate(test[0]);
@@ -465,8 +426,6 @@ int main()
     evaluate(test[3]);
     evaluate(test[4]);
     evaluate(test[5]);
-    // evaluate(test[6]);
 
-    printf("\n");
     return 0;
 }

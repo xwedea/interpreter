@@ -78,10 +78,12 @@ void main(int argc, char *argv[]) {
 					
                 }
                 else {
-                    printf("An unrecognized character is detected in code!\n",
-				if (strstr(ALPHABET QU ch);
-				    break;
-                }
+                    printf("An unrecognized character is detected in code!\n");
+					break;
+				}
+				// if (strstr(ALPHABET QU ch);
+				//     break;
+                // }
 			}
 
 			char ch_str[2] = {ch, '\0'}; // create string from ch to use it in string.h functions 
