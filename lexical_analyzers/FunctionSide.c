@@ -167,6 +167,15 @@ void loop(char *tokens[], int tokens_size, char *type)
 {
     char inside_loop[1000];
     inside_loop[0] = '\0';
+
+    int times = 0;
+
+    // Finding the valid time for the specific command
+    if(!strcmp(tokens[2], "Identifier"))
+        times = values[getIndex(tokens[3])];
+
+    else if(!strcmp(tokens[2], "IntConstant"))
+        times = atoi(tokens[3]);
     // printf("LOOP CALLED: TOKENSIZE: %d | type: %s", tokens_size, type);
 
     char inside_loop_matris[100][1000];
@@ -189,15 +198,34 @@ void loop(char *tokens[], int tokens_size, char *type)
             strcat(inside_loop_matris[lines], tokens[i]);
             if(!strcmp("EndOfLine", tokens[i]))
                 lines++;
-
         }
-
-
     }
 
-    printf("insideloop = %s\n", inside_loop_matris[0]);
-    printf("insideloop = %s\n", inside_loop_matris[1]);
-    printf("lines = %d\n", lines);
+    char run[1000][1000];
+    int run_len = 0;
+
+    for (int i = 0; i < times; i++) {
+        for (int j = 0; j < lines; j++) {
+            // printf("insideloop[j]: %s\n", inside_loop_matris[j]);
+            strcat(run[i], inside_loop[j]);
+            // run[i] = inside_loop[j];
+            run_len++;
+        }
+    }
+
+    printf("%s\n", run[0]);
+    evaluate(run[0]);
+
+    // for (int i = 0; i < run_len; i++) {
+    //     evaluate(run[i]);
+    // }
+
+
+
+
+    // printf("insideloop = %s\n", inside_loop_matris[0]);
+    // printf("insideloop = %s\n", inside_loop_matris[1]);
+    // printf("lines = %d\n", lines);
 
     // check if it is a whole loop statement ( it doesnt have to be detailed)
     // if full loop:
@@ -446,58 +474,6 @@ int main()
     evaluate(test[4]);
     evaluate(test[5]);
     // evaluate(test[6]);
-
-
-    char command[7][1000] = {"Keyword int Identifier firstVar EndOfLine",
-                            "Keyword move IntConstant 10 Keyword to Identifier firstVar EndOfLine",
-                            "Keyword int Identifier second EndOfLine",
-                            // "Keyword move IntConstant 5 Keyword to Identifier firstVar EndOfLine",
-                            "Keyword move IntConstant 2 Keyword to Identifier second EndOfLine",
-                            "Keyword sub IntConstant 1 Keyword from Identifier firstVar EndOfLine",
-                            "Keyword out Identifier firstVar Seperator IntConstant 78 Seperator StringConstant \"lmao\" Seperator newline StringConstant mmm EndOfLine",
-                            "Keyword loop Identifier firstVar Keyword times Keyword add IntConsant 5 Keyword to Identifier firstVar EndOfLine \"*\""};
-
-    // for(int i=0; i<7; i++)
-    // {
-
-    // }
-    // for(int i=0; i<7; i++)
-    // {
-    //     // Splitting ritual and creating a readable command-set for the functions
-    //     char *words[1000] = {'\0'};
-    //     int wordCount = 0;
-    //     char *splitedWords = strtok(command[i], " ");
-    //     while (splitedWords != NULL) {
-    //         words[wordCount++] = splitedWords;
-    //         splitedWords = strtok(NULL, " ");
-    //     }
-    //     if(i >= 0 && i < 2){
-    //         declaration(words);
-    //         printf("CREATED VAR IS: %s\n",variables[i]);
-    //         printf("CREATED VALUE IS: %d\n\n",values[i]);
-    //     }
-    //     if(i >= 2 && i < 4){
-    //         move(words);
-    //         printf("firstVar: %d\n",values[0]);
-    //         printf("second: %d\n",values[1]);
-    //     }
-    //     if(i == 4)
-    //     {
-    //         sub(words);
-    //         printf("firstVar: %d\n",values[0]);
-    //         printf("second: %d\n",values[1]);
-    //     }
-    //     if(i == 5)
-    //     {
-    //         printf("\n");
-    //         out(words);
-    //     }
-    //     if(i == 6)
-    //     {
-    //         printf("\n");
-    //         loop(words);
-    //     }
-    // }
 
     printf("\n");
     return 0;
