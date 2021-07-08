@@ -444,6 +444,7 @@ void main(int argc, char *argv[]) {
 	int statements_arr_len = 0;
 
 
+
 	FILE *readFilePointer = fopen(readFilename, "r"); // read files from here
 	FILE *writeFilePointer = fopen(writeFilename, "w"); // write to this file
 	char ch;
@@ -504,11 +505,11 @@ void main(int argc, char *argv[]) {
 						strcpy(statements_arr[statements_arr_len], statement_stack);
 						evaluate(statements_arr[statements_arr_len]);
 						statements_arr_len++;
+						statement_stack[0] = '\0';
 					}
 					else if (strstr(SEPERATOR, ch_str)) {
 						fprintf(writeFilePointer, "Seperator\n");
 						strcat(statement_stack, "Seperator ");
-
 					}
 					else if (strstr(OPENBLOCK, ch_str)) {
 						fprintf(writeFilePointer, "OpenBlock\n");
@@ -517,6 +518,7 @@ void main(int argc, char *argv[]) {
 					else if (strstr(CLOSEBLOCK, ch_str)) {
 						fprintf(writeFilePointer, "CloseBlock\n");
 						strcat(statement_stack, "CloseBlock ");
+						
 					}
 				}
 				else if (strstr(COMMENT_START, ch_str)) {
@@ -568,6 +570,7 @@ void main(int argc, char *argv[]) {
 						strcpy(statements_arr[statements_arr_len], statement_stack);
 						evaluate(statements_arr[statements_arr_len]);
 						statements_arr_len++;
+						statement_stack[0] = '\0';
 					}
 					else if (strstr(SEPERATOR, ch_str)) {
 						fprintf(writeFilePointer, "Seperator\n");
@@ -647,6 +650,7 @@ void main(int argc, char *argv[]) {
 						strcpy(statements_arr[statements_arr_len], statement_stack);
 						evaluate(statements_arr[statements_arr_len]);
 						statements_arr_len++;
+						statement_stack[0] = '\0';
 					}
 					else if (strstr(SEPERATOR, ch_str)) {
 						fprintf(writeFilePointer, "Seperator\n");
