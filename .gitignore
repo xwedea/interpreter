@@ -5,3 +5,4 @@ test.c
 *.lx
 runtest
 run
+functions

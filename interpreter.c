@@ -125,6 +125,7 @@ void out(char *token[])
 // Declaration functionality
 void declaration(char *tokens[])
 {
+	// printf("%s\n", tokens[3]);
     variables[variableIndex] = tokens[3]; // 0 when using, then 1
     values[variableIndex] = 0; // 1
     printf("declared %s with value %d\n", variables[variableIndex], values[variableIndex]);
@@ -499,15 +500,23 @@ void main(int argc, char *argv[]) {
 				else if (strstr(NON_STATE_CHARS, ch_str)) { // ] [ , .
 					if (strstr(ENDOFLINE, ch_str)) {
 						fprintf(writeFilePointer, "EndOfLine\n");
+						strcat(statement_stack, "EndOfLine ");
+						strcpy(statements_arr[statements_arr_len], statement_stack);
+						evaluate(statements_arr[statements_arr_len]);
+						statements_arr_len++;
 					}
 					else if (strstr(SEPERATOR, ch_str)) {
 						fprintf(writeFilePointer, "Seperator\n");
+						strcat(statement_stack, "Seperator ");
+
 					}
 					else if (strstr(OPENBLOCK, ch_str)) {
 						fprintf(writeFilePointer, "OpenBlock\n");
+						strcat(statement_stack, "OpenBlock ");
 					}
 					else if (strstr(CLOSEBLOCK, ch_str)) {
 						fprintf(writeFilePointer, "CloseBlock\n");
+						strcat(statement_stack, "CloseBlock ");
 					}
 				}
 				else if (strstr(COMMENT_START, ch_str)) {
@@ -540,24 +549,37 @@ void main(int argc, char *argv[]) {
 					
 					if (strstr(KEYWORDS, token_stack)) {
 						fprintf(writeFilePointer, "Keyword %s\n", token_stack);
+						strcat(statement_stack, "Keyword ");
+						strcat(statement_stack, token_stack);
+						strcat(statement_stack, " ");
 					} 
 					else {
 						fprintf(writeFilePointer, "Identifier %s\n", token_stack);
+						strcat(statement_stack, "Identifier ");
+						strcat(statement_stack, token_stack);
+						strcat(statement_stack, " ");
 					}
 
 					token_stack[0] = '\0';
 
 					if (strstr(ENDOFLINE, ch_str)) {
 						fprintf(writeFilePointer, "EndOfLine\n");
+						strcat(statement_stack, "EndOfLine ");
+						strcpy(statements_arr[statements_arr_len], statement_stack);
+						evaluate(statements_arr[statements_arr_len]);
+						statements_arr_len++;
 					}
 					else if (strstr(SEPERATOR, ch_str)) {
 						fprintf(writeFilePointer, "Seperator\n");
+						strcat(statement_stack, "Seperator ");
 					}
 					else if (strstr(OPENBLOCK, ch_str)) {
 						fprintf(writeFilePointer, "OpenBlock\n");
+						strcat(statement_stack, "OpenBlock ");
 					}
 					else if (strstr(CLOSEBLOCK, ch_str)) {
 						fprintf(writeFilePointer, "CloseBlock\n");
+						strcat(statement_stack, "CloseBlock ");
 					}
 					source_state = default_state;
 				}
@@ -574,6 +596,9 @@ void main(int argc, char *argv[]) {
 				if (strstr(QUOTATION, ch_str)) {
 					strcat(token_stack, ch_str);
 					fprintf(writeFilePointer, "StringConstant %s\n", token_stack);
+					strcat(statement_stack, "StringConstant ");
+					strcat(statement_stack, token_stack);
+					strcat(statement_stack, " ");
 					token_stack[0] = '\0';
 					source_state = default_state;
 				}
@@ -608,6 +633,9 @@ void main(int argc, char *argv[]) {
 				}
 				else if (strstr(NON_STATE_CHARS SPACE, ch_str)) { // ] [ , . or space
 					fprintf(writeFilePointer, "IntConstant %s\n", token_stack);
+					strcat(statement_stack, "IntConstant ");
+					strcat(statement_stack, token_stack);
+					strcat(statement_stack, " ");
                     
                     ///// CHECK IF
 
@@ -615,15 +643,22 @@ void main(int argc, char *argv[]) {
 
 					if (strstr(ENDOFLINE, ch_str)) {
 						fprintf(writeFilePointer, "EndOfLine\n");
+						strcat(statement_stack, "EndOfLine ");
+						strcpy(statements_arr[statements_arr_len], statement_stack);
+						evaluate(statements_arr[statements_arr_len]);
+						statements_arr_len++;
 					}
 					else if (strstr(SEPERATOR, ch_str)) {
 						fprintf(writeFilePointer, "Seperator\n");
+						strcat(statement_stack, "Seperator ");
 					}
 					else if (strstr(OPENBLOCK, ch_str)) {
 						fprintf(writeFilePointer, "OpenBlock\n");
+						strcat(statement_stack, "OpenBlock ");
 					}
 					else if (strstr(CLOSEBLOCK, ch_str)) {
 						fprintf(writeFilePointer, "CloseBlock\n");
+						strcat(statement_stack, "CloseBlock ");
 					}
 					source_state = default_state;
 
