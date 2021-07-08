@@ -1,3 +1,4 @@
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -168,6 +169,9 @@ void loop(char *tokens[], int tokens_size, char *type)
     inside_loop[0] = '\0';
     // printf("LOOP CALLED: TOKENSIZE: %d | type: %s", tokens_size, type);
 
+    char inside_loop_matris[100][1000];
+    int lines = 0;
+
     if (!strcmp("oneline", type)) {
         for (int i = 6; i < tokens_size; i++) {
             if (i != 6) {
@@ -177,10 +181,23 @@ void loop(char *tokens[], int tokens_size, char *type)
         }
     }
     else if (!strcmp("block", type)) {
-        
+        for (int i = 7; i < tokens_size; i++)
+        {
+            if (i != 6) {
+                strcat(inside_loop_matris[lines], " ");
+            }
+            strcat(inside_loop_matris[lines], tokens[i]);
+            if(!strcmp("EndOfLine", tokens[i]))
+                lines++;
+
+        }
+
+
     }
 
-    printf("insideloop = %s\n", inside_loop);
+    printf("insideloop = %s\n", inside_loop_matris[0]);
+    printf("insideloop = %s\n", inside_loop_matris[1]);
+    printf("lines = %d\n", lines);
 
     // check if it is a whole loop statement ( it doesnt have to be detailed)
     // if full loop:
@@ -403,7 +420,8 @@ int main()
         "Keyword move IntConstant 10 Keyword to Identifier firstVar EndOfLine",
         "Keyword add IntConstant 5 Keyword to Identifier second EndOfLine",
         "Keyword sub Identifier second Keyword from Identifier firstVar EndOfLine",
-        "Keyword loop Identifier firstVar Keyword times Keyword add IntConsant 5 Keyword to Identifier firstVar EndOfLine"
+        //"Keyword loop Identifier firstVar Keyword times Keyword add IntConsant 5 Keyword to Identifier firstVar EndOfLine",
+        "Keyword loop IntConstant 10 Keyword times OpenBlock Keyword add IntConstant 10 Keyword to Identifier firstVar EndOfLine Keyword sub IntConstant 10 Keyword from Identifier firstVar second EndOfLine CloseBlock"
 
         // "Keyword out Identifier firstVar Identifier am Keyword newline Seperator StringConstant \"lmao\" Seperator Keyword newline EndOfLine",
         // "Keyword out Identifier firstVar Seperator IntConstant 78 Seperator StringConstant \"lmao\" Seperator Keyword newline Seperator StringConstant mmm EndOfLine",
