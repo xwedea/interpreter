@@ -1,4 +1,3 @@
-
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -202,14 +201,14 @@ void loop(char *tokens[], int tokens_size, char *type)
     }
 
     char run[1000][1000];
-    int run_len = 0;
+    int run_len = times * lines;
 
-    for (int i = 0; i < times; i++) {
-        for (int j = 0; j < lines; j++) {
-            // printf("insideloop[j]: %s\n", inside_loop_matris[j]);
-            strcat(run[i], inside_loop[j]);
-            // run[i] = inside_loop[j];
-            run_len++;
+
+    for (int i = 0; i < run_len;) {
+        for (int j = 0; j < lines - 1; j++) {
+            strcat(run[i], inside_loop_matris[j]);
+            printf(run[i]);
+            i++;
         }
     }
 
