@@ -9,6 +9,14 @@ int variableIndex = 0;
 int values[1000] = { 0 };
 int line = 0;
 
+char* concat(const char *s1, const char *s2)
+{
+    char *result = malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
+    // in real code you would check for errors in malloc here
+    strcpy(result, s1);
+    strcat(result, s2);
+    return result;
+}
 
 bool variableExists(char *variable){
     if(variableIndex == 0)
@@ -97,17 +105,6 @@ void out(char *token[])
     }
 }
 
-void loop(char *token[], int *tokens_size)
-{
-    // printf("LOOP CALLED: TOKENSIZE: %d", tokens_size);
-
-    // check if it is a whole loop statement ( it doesnt have to be detailed)
-    // if full loop:
-    //  loop_inside = ""
-    //  for (token in tokens[6:-1]) /// assuming it is a block if it is one line it will be tokens[6:]
-    //  loop_inside += token
-    //  evaluate(loop_inside)
-}
 
 // Declaration functionality
 void declaration(char *tokens[])
@@ -148,6 +145,51 @@ void sub(char *tokens[])
 
 }
 
+// char *lineHolder = "";
+// for(int i = 6; strcmp(token[i - 1], "EndOfLine") ; i++)
+// {
+//     lineHolder = concat(lineHolder, token[i]);
+//     if(strcmp(token[i], "EndOfLine"))
+//         lineHolder = concat(lineHolder, " ");
+// }
+// evaluate(lineHolder);
+
+
+
+
+
+
+
+
+
+void loop(char *tokens[], int tokens_size, char *type)
+{
+    char inside_loop[1000];
+    inside_loop[0] = '\0';
+    // printf("LOOP CALLED: TOKENSIZE: %d | type: %s", tokens_size, type);
+
+    if (!strcmp("oneline", type)) {
+        for (int i = 6; i < tokens_size; i++) {
+            if (i != 6) {
+                strcat(inside_loop, " ");
+            }
+            strcat(inside_loop, tokens[i]);
+        }
+    }
+    else if (!strcmp("block", type)) {
+        
+    }
+
+    printf("insideloop = %s\n", inside_loop);
+
+    // check if it is a whole loop statement ( it doesnt have to be detailed)
+    // if full loop:
+    //  loop_inside = ""
+    //  for (token in tokens[6:-1]) /// assuming it is a block if it is one line it will be tokens[6:]
+    //  loop_inside += token
+    //  evaluate(loop_inside)
+}
+
 void evaluate(char *statement) {
     char *tokens[1000] = {'\0'};
     int tokens_size = 0;
@@ -159,9 +201,9 @@ void evaluate(char *statement) {
         tokens_size++;
     }
 
-    for (int i = 0; i < tokens_size; i++) {
-        printf("%s ", tokens[i]);
-    }
+    // for (int i = 0; i < tokens_size; i++) {
+    //     printf("%s ", tokens[i]);
+    // }
     // printf("tokens[3]: %s\n", tokens[3]);
 
     char type[20] = {"\0"};
@@ -181,7 +223,6 @@ void evaluate(char *statement) {
             }
             if (!strcmp(tokens[4], "EndOfLine")) {
                 declaration(tokens);
-                // statement = '\0';
             } else {
                 syntaxError(type, "EndOfLine", tokens[3]);
             }
@@ -204,8 +245,6 @@ void evaluate(char *statement) {
                     }
                     if (!strcmp(tokens[8], "EndOfLine")) {
                         move(tokens);
-                        statement = '\0';
-
                     } else {
                         syntaxError(type, "EndOfLine", tokens[7]);
                     }
@@ -233,7 +272,6 @@ void evaluate(char *statement) {
                     }
                     if (!strcmp(tokens[8], "EndOfLine")) {
                         add(tokens);
-                        statement = '\0';
                     } else {
                         syntaxError(type, "EndOfLine", tokens[7]);
                     }
@@ -261,7 +299,6 @@ void evaluate(char *statement) {
                     }
                     if (!strcmp(tokens[8], "EndOfLine")) {
                         sub(tokens);
-                        statement = '\0';
                     } else {
                         syntaxError(type, "EndOfLine", tokens[7]);
                     }
@@ -303,7 +340,6 @@ void evaluate(char *statement) {
                         exit(0);
                     }
                     out(tokens);
-                    statement = '\0';
                 }
             }
             else {
@@ -324,25 +360,25 @@ void evaluate(char *statement) {
                 undeclarationError(tokens[3]);
 
             if (!strcmp(tokens[5], "times")) {
-                printf("call loop()");
-                // if (!strcmp(tokens[6], "OpenBlock")) {
-                //     if (!strcmp(tokens[6], "OpenBlock")) {
-                //         if (!strcmp(tokens[tokens_size-1], "CloseBlock")) {
-                //             printf("call loop()");
-                //         }
-                //         else {
-                //             printf("ERROR at line %d: \n", line);
-                //             exit(0);
-                //         }
-                //     }
-                //     else
-                //         syntaxError(type, "OpenBlock", tokens[5]);
-                // }
-                // else if (!strcmp(tokens[6], "Keyword")) {
-                //     printf("call loop()");
-                // }
-                // else
-                //     syntaxError(type, "OpenBlock or a starting Keyword", tokens[5]);
+                if (!strcmp(tokens[6], "OpenBlock")) {
+                    loop(tokens, tokens_size, "block");
+                    // if (!strcmp(tokens[6], "OpenBlock")) {
+                    //     if (!strcmp(tokens[tokens_size-1], "CloseBlock")) {
+                    //         printf("call loop()");
+                    //     }
+                    //     else {
+                    //         printf("ERROR at line %d: \n", line);
+                    //         exit(0);
+                    //     }
+                    // }
+                    // else
+                    //     syntaxError(type, "OpenBlock", tokens[5]);
+                }
+                else if (!strcmp(tokens[6], "Keyword")) {
+                    loop(tokens, tokens_size, "oneline");
+                }
+                else
+                    syntaxError(type, "OpenBlock or a starting Keyword", tokens[5]);
             }
             else
                 syntaxError(type, "Keyword times", tokens[4]);
@@ -361,7 +397,7 @@ void evaluate(char *statement) {
 
 int main()
 {
-    char test[7][1000] /*= {
+    char test[7][1000] = {
         "Keyword int Identifier firstVar EndOfLine",
         "Keyword int Identifier second EndOfLine",
         "Keyword move IntConstant 10 Keyword to Identifier firstVar EndOfLine",
@@ -371,38 +407,26 @@ int main()
 
         // "Keyword out Identifier firstVar Identifier am Keyword newline Seperator StringConstant \"lmao\" Seperator Keyword newline EndOfLine",
         // "Keyword out Identifier firstVar Seperator IntConstant 78 Seperator StringConstant \"lmao\" Seperator Keyword newline Seperator StringConstant mmm EndOfLine",
-    }*/;
+    };
 
     char stack_test[1000];
     stack_test[0] = '\0';
-    // printf("statement stack: %s\n", stack_test);
 
 
-    //strcpy(stack_test, "Keyword int Identifier firstVar EndOfLine");
-    // printf("statement stack: %s\n", stack_test);
-    strcpy(test[0], "Keyword int Identifier firstVar EndOfLine");
-    evaluate(test[0]);
 
-    strcpy(test[1], "Keyword int Identifier second EndOfLine");
-    evaluate(test[1]);
-
-    // strcpy(stack_test, "Keyword int Identifier second EndOfLine");
-    // printf("statement stack: %s\n", stack_test);
-    // evaluate(stack_test);
-
-    // strcpy(stack_test, "Keyword move IntConstant 10 Keyword to Identifier firstVar EndOfLine");
-    // evaluate(stack_test);
-
-    // strcpy(statement_stack, "Keyword loop Identifier firstVar Keyword times Keyword add IntConsant 5 Keyword to Identifier firstVar EndOfLine");
-    // evaluate(statement_stack);
-
-
+    // strcpy(test[0], "Keyword int Identifier firstVar EndOfLine");
     // evaluate(test[0]);
+
+    // strcpy(test[1], "Keyword int Identifier second EndOfLine");
     // evaluate(test[1]);
-    // evaluate(test[2]);
-    // evaluate(test[3]);
-    // evaluate(test[4]);
-    // evaluate(test[5]);
+
+
+    evaluate(test[0]);
+    evaluate(test[1]);
+    evaluate(test[2]);
+    evaluate(test[3]);
+    evaluate(test[4]);
+    evaluate(test[5]);
     // evaluate(test[6]);
 
 
