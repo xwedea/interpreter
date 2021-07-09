@@ -186,18 +186,33 @@ void loop(char *tokens[], int tokens_size, char *type)
             }
         }
         lines = 1;
-        printf("%s\n", inside_loop_matris[0]);
+        // printf("%s\n", inside_loop_matris[0]);
     }
     else if (!strcmp("block", type)) {
+        int looper = 0;
         for (int i = 7; i < tokens_size-1; i++)
         {
             strcat(inside_loop_matris[lines], tokens[i]);
             if (i != 6) {
                 strcat(inside_loop_matris[lines], " ");
             }
-            if(!strcmp("EndOfLine", tokens[i]))
+
+            if (!strcmp(tokens[i],"OpenBlock")){
+                looper++;
+            }
+            else if (!strcmp(tokens[i],"CloseBlock")){
+                looper--;
                 lines++;
+            }
+            else if(!strcmp("EndOfLine", tokens[i]) && looper == 0){
+                lines++;
+            }
+            // printf("looper: %d | token:  %s \n", looper, tokens[i]);
         }
+    }
+
+    for (int i = 0; i < lines; i++) {
+        // printf("%s\n", inside_loop_matris[i]);
     }
 
     char run[1000][1000];
