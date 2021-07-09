@@ -189,7 +189,7 @@ void loop(char *tokens[], int tokens_size, char *type)
         printf("%s\n", inside_loop_matris[0]);
     }
     else if (!strcmp("block", type)) {
-        for (int i = 7; i < tokens_size; i++)
+        for (int i = 7; i < tokens_size-1; i++)
         {
             strcat(inside_loop_matris[lines], tokens[i]);
             if (i != 6) {
@@ -212,6 +212,7 @@ void loop(char *tokens[], int tokens_size, char *type)
     }
 
     for (int i = 0; i < run_len; i++) {
+        // printf("statement: %s\n", run[i]);
         evaluate(run[i]);
         if(!strcmp(tokens[2], "Identifier")) {
             values[identifier_index]--;
@@ -499,10 +500,12 @@ void main(int argc, char *argv[]) {
 					if (strstr(ENDOFLINE, ch_str)) {
 						fprintf(writeFilePointer, "EndOfLine\n");
 						strcat(statement_stack, "EndOfLine ");
-						strcpy(statements_arr[statements_arr_len], statement_stack);
-						evaluate(statements_arr[statements_arr_len]);
-						statements_arr_len++;
-						statement_stack[0] = '\0';
+                        if (loop_detector == 0) {
+                            strcpy(statements_arr[statements_arr_len], statement_stack);
+                            evaluate(statements_arr[statements_arr_len]);
+                            statements_arr_len++;
+                            statement_stack[0] = '\0';
+                        }
 					}
 					else if (strstr(SEPERATOR, ch_str)) {
 						fprintf(writeFilePointer, "Seperator\n");
@@ -571,10 +574,12 @@ void main(int argc, char *argv[]) {
 					if (strstr(ENDOFLINE, ch_str)) {
 						fprintf(writeFilePointer, "EndOfLine\n");
 						strcat(statement_stack, "EndOfLine ");
-						strcpy(statements_arr[statements_arr_len], statement_stack);
-						evaluate(statements_arr[statements_arr_len]);
-						statements_arr_len++;
-						statement_stack[0] = '\0';
+						if (loop_detector == 0) {
+                            strcpy(statements_arr[statements_arr_len], statement_stack);
+                            evaluate(statements_arr[statements_arr_len]);
+                            statements_arr_len++;
+                            statement_stack[0] = '\0';
+                        }
 					}
 					else if (strstr(SEPERATOR, ch_str)) {
 						fprintf(writeFilePointer, "Seperator\n");
@@ -659,10 +664,12 @@ void main(int argc, char *argv[]) {
 					if (strstr(ENDOFLINE, ch_str)) {
 						fprintf(writeFilePointer, "EndOfLine\n");
 						strcat(statement_stack, "EndOfLine ");
-						strcpy(statements_arr[statements_arr_len], statement_stack);
-						evaluate(statements_arr[statements_arr_len]);
-						statements_arr_len++;
-						statement_stack[0] = '\0';
+						if (loop_detector == 0) {
+                            strcpy(statements_arr[statements_arr_len], statement_stack);
+                            evaluate(statements_arr[statements_arr_len]);
+                            statements_arr_len++;
+                            statement_stack[0] = '\0';
+                        }
 					}
 					else if (strstr(SEPERATOR, ch_str)) {
 						fprintf(writeFilePointer, "Seperator\n");
