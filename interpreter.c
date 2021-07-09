@@ -116,8 +116,15 @@ void out(char *token[])
         else if(!strcmp(token[counter], "newline"))
             printf("\n");
         else if(!strcmp(token[counter], "StringConstant"))
-            printf("%s ", token[counter + 1]);
-
+        {
+            while (token[counter] != NULL && strcmp(token[counter + 1], "Seperator"))
+            {
+               counter++;
+               if(!strcmp(token[counter], "EndOfLine"))
+                    break;
+               printf("%s ", token[counter]);
+            }
+        }
         counter++;
     }
 }
@@ -355,7 +362,8 @@ void evaluate(char *statement) {
     }
     // output
     else if (!strcmp(tokens[1],"out")) {
-        if ((tokens_size -2) % 3 != 0){
+        out(tokens);
+        /*if ((tokens_size -2) % 3 != 0){
             printf("ERROR: line: %d | Invalid out syntax\n", line);
             exit(0);
         }
@@ -391,7 +399,7 @@ void evaluate(char *statement) {
                 }
                 exit(0);
             }
-        }
+        }*/
     }
     // loop
     else if (!strcmp(tokens[1],"loop")) {
