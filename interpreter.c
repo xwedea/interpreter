@@ -159,9 +159,6 @@ void sub(char *tokens[])
 
 void loop(char *tokens[], int tokens_size, char *type)
 {
-    char inside_loop[1000];
-    inside_loop[0] = '\0';
-
     char inside_loop_matris[100][1000];
     int lines = 0;
     int times = 0;
@@ -443,7 +440,7 @@ void main(int argc, char *argv[]) {
 	char statements_arr[100][1000] = {};
 	int statements_arr_len = 0;
 
-
+	int loop_detector = 0;
 
 	FILE *readFilePointer = fopen(readFilename, "r"); // read files from here
 	FILE *writeFilePointer = fopen(writeFilename, "w"); // write to this file
@@ -514,11 +511,18 @@ void main(int argc, char *argv[]) {
 					else if (strstr(OPENBLOCK, ch_str)) {
 						fprintf(writeFilePointer, "OpenBlock\n");
 						strcat(statement_stack, "OpenBlock ");
+						loop_detector++;
 					}
 					else if (strstr(CLOSEBLOCK, ch_str)) {
 						fprintf(writeFilePointer, "CloseBlock\n");
 						strcat(statement_stack, "CloseBlock ");
-						
+						loop_detector--;
+						if (loop_detector == 0 ) {
+							strcpy(statements_arr[statements_arr_len], statement_stack);
+							evaluate(statements_arr[statements_arr_len]);
+							statements_arr_len++;
+							statement_stack[0] = '\0';
+						}
 					}
 				}
 				else if (strstr(COMMENT_START, ch_str)) {
@@ -579,10 +583,18 @@ void main(int argc, char *argv[]) {
 					else if (strstr(OPENBLOCK, ch_str)) {
 						fprintf(writeFilePointer, "OpenBlock\n");
 						strcat(statement_stack, "OpenBlock ");
+						loop_detector++;
 					}
 					else if (strstr(CLOSEBLOCK, ch_str)) {
 						fprintf(writeFilePointer, "CloseBlock\n");
 						strcat(statement_stack, "CloseBlock ");
+						loop_detector--;
+						if (loop_detector == 0 ) {
+							strcpy(statements_arr[statements_arr_len], statement_stack);
+							evaluate(statements_arr[statements_arr_len]);
+							statements_arr_len++;
+							statement_stack[0] = '\0';
+						}
 					}
 					source_state = default_state;
 				}
@@ -659,10 +671,18 @@ void main(int argc, char *argv[]) {
 					else if (strstr(OPENBLOCK, ch_str)) {
 						fprintf(writeFilePointer, "OpenBlock\n");
 						strcat(statement_stack, "OpenBlock ");
+						loop_detector++;
 					}
 					else if (strstr(CLOSEBLOCK, ch_str)) {
 						fprintf(writeFilePointer, "CloseBlock\n");
 						strcat(statement_stack, "CloseBlock ");
+						loop_detector--;
+						if (loop_detector == 0 ) {
+							strcpy(statements_arr[statements_arr_len], statement_stack);
+							evaluate(statements_arr[statements_arr_len]);
+							statements_arr_len++;
+							statement_stack[0] = '\0';
+						}
 					}
 					source_state = default_state;
 
