@@ -9,7 +9,7 @@
 #define ALPHABET "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 #define DIGITS "0123456789"
 #define MINUS "-"
-#define NON_STATE_CHARS ",.][" // I DEFINED SUCH CONSTANT BECAUSE THEY HAVE SIMILAR BEHAVIOR PATTERN
+#define NON_STATE_CHARS ",.]["
 #define SEPERATOR ","
 #define ENDOFLINE "."
 #define OPENBLOCK "["
@@ -26,20 +26,355 @@ Instead of initializing a state string variable and modifying it every time;
 I defined a STATE struct with a name member.
 I change the state when needed and access their name property to find the source_state(current state)
 **/
+
+// State struct
 typedef struct {
 	char* name;
 } STATE;
 
+// States
 STATE default_state = {"default"};
 STATE key_iden_state = {"keyword and identifier"};
 STATE str_const_state = {"string constant"};
 STATE comment_state = {"comment"};
 STATE int_const_state = {"integer constant"};
 
+// Variables
 char *variables[1000];
 int variableIndex = 0;
 int values[1000] = { 0 };
 int line = 1;
+
+/**
+PROTOTYPES
+**/
+
+// Utilities
+int isKeyword(char *str);
+char *substring(char *string, int position, int length);
+bool variableExists(char *variable);
+void undeclarationError(char identifier[]);
+void syntaxError(char type[], char expected[], char previous[]);
+int getIndex (char *name);
+
+// Operations
+void move(char *token[]);
+void out(char *tokens[], int tokens_size);
+void declaration(char *tokens[]);
+void add(char *token[]);
+void sub(char *tokens[]);
+void loop(char *tokens[], int tokens_size, char *type);
+
+// Execution prototype
+void evaluate(char *statement);
+
+// Main and Lexical Analyzer
+void main(int argc, char *argv[]) {
+	char readFilename[256];
+	char writeFilename[256];
+	snprintf(readFilename, sizeof(readFilename), "%s.ba", argv[1]);
+	snprintf(writeFilename, sizeof(writeFilename), "%s.lx", argv[1]);
+
+	STATE source_state = default_state; // FSA starts from default state
+
+	char token_stack[100]; // tokens are written to file from this string
+	token_stack[0] = '\0'; // empty string
+
+	char statement_stack[1000];
+	statement_stack[0] = '\0';
+
+	char statements_arr[100][1000] = {};
+	int statements_arr_len = 0;
+
+	int loop_detector = 0;
+
+	FILE *readFilePointer = fopen(readFilename, "r"); // read files from here
+	FILE *writeFilePointer = fopen(writeFilename, "w"); // write to this file
+	char ch;
+
+	if (readFilePointer == NULL) // check if file exists
+	{
+		printf("ERROR: File is not available\n");
+	}
+	else
+	{
+		// iterate number of characters in file, assign current char to ch
+		while ((ch = fgetc(readFilePointer)) != EOF)
+		{
+            if (ch == '\n') {
+                line++;
+            }
+			// check if char assigned to ch is valid
+            // (ascii -126) used in code
+            // (ascii 126-) may only appear in a comment or string
+			if (ch<0 || ch>125) {
+                if (source_state.name == "comment" || source_state.name == "string constant") {
+
+                }
+                else {
+                    printf("An unrecognized character is detected in code!\n");
+					break;
+				}
+			}
+
+			char ch_str[2] = {ch, '\0'}; // create string from ch to use it in string.h functions
+
+			/**
+			NESTED IF ELSE STATEMENTS TO CATCH EVERY POSSIBLE STATE-INPUT COMBINATION;
+			APPLY THE OPERATIONS DEFINED FOR THAT PARTICULAR STATE-INPUT COMBINATION;
+			POSSIBLE OPERATIONS
+			-add char to token_stack --> strcat(token_stack, ch_str);
+			-empty token_stack --> token_stack[0] = '\0';
+			-change state --> source_state = ..._state;
+			-write to file --> fprintf(writeFilePointer, "...");
+			-print error message and break loop --> printf("..."); break;
+ 			**/
+			if (source_state.name == "default") { // CHECK
+				if (strstr(ALPHABET, ch_str)) { // DEFAULT_STATE-ALPHABET_INPUT COMBINATION
+					strcat(token_stack, ch_str);
+					source_state = key_iden_state;
+				}
+				else if (strstr(DIGITS MINUS, ch_str)) {
+					strcat(token_stack, ch_str);
+					source_state = int_const_state;
+				}
+				else if (strstr(NON_STATE_CHARS, ch_str)) { // ] [ , .
+					if (strstr(ENDOFLINE, ch_str)) {
+						fprintf(writeFilePointer, "EndOfLine\n");
+						strcat(statement_stack, "EndOfLine ");
+                        if (loop_detector == 0) {
+                            strcpy(statements_arr[statements_arr_len], statement_stack);
+                            evaluate(statements_arr[statements_arr_len]);
+                            statements_arr_len++;
+                            statement_stack[0] = '\0';
+                        }
+					}
+					else if (strstr(SEPERATOR, ch_str)) {
+						fprintf(writeFilePointer, "Seperator\n");
+						strcat(statement_stack, "Seperator ");
+					}
+					else if (strstr(OPENBLOCK, ch_str)) {
+						fprintf(writeFilePointer, "OpenBlock\n");
+						strcat(statement_stack, "OpenBlock ");
+						loop_detector++;
+					}
+					else if (strstr(CLOSEBLOCK, ch_str)) {
+						fprintf(writeFilePointer, "CloseBlock\n");
+						strcat(statement_stack, "CloseBlock ");
+						loop_detector--;
+						if (loop_detector == 0 ) {
+							strcpy(statements_arr[statements_arr_len], statement_stack);
+							evaluate(statements_arr[statements_arr_len]);
+							statements_arr_len++;
+							statement_stack[0] = '\0';
+						}
+					}
+				}
+				else if (strstr(COMMENT_START, ch_str)) {
+					source_state = comment_state;
+				}
+				else if (strstr(COMMENT_END UNDERSCORE, ch_str)) {
+					printf("ERROR: Invalid use of token: %s\n", ch_str);
+					break;
+				}
+				else if (strstr(QUOTATION, ch_str)) {
+					strcat(token_stack, ch_str);
+					source_state = str_const_state;
+				}
+				else if (strstr(SPACE, ch_str)) {
+					continue;
+				}
+                else if (ch == '\n'){
+                    //
+                }
+                else {
+                    printf("ERROR: Invalid token: %s\n", ch_str);
+					break;
+                }
+			}
+			else if (source_state.name == "keyword and identifier") {
+				// check if identifier in token_stack is out of bound
+				if (strlen(token_stack) > 20 ) {
+					printf("Length of variable name is out of bound\n");
+					break;
+				}
+
+				// check inputs
+				if (strstr(ALPHABET DIGITS UNDERSCORE, ch_str)) {
+					strcat(token_stack, ch_str);
+				}
+				else if (strstr(NON_STATE_CHARS SPACE, ch_str)) { // ] [ , . or space
+
+					if (isKeyword(token_stack)) {
+						fprintf(writeFilePointer, "Keyword %s\n", token_stack);
+						strcat(statement_stack, "Keyword ");
+						strcat(statement_stack, token_stack);
+						strcat(statement_stack, " ");
+					}
+					else {
+						fprintf(writeFilePointer, "Identifier %s\n", token_stack);
+						strcat(statement_stack, "Identifier ");
+						strcat(statement_stack, token_stack);
+						strcat(statement_stack, " ");
+					}
+
+					token_stack[0] = '\0';
+
+					if (strstr(ENDOFLINE, ch_str)) {
+						fprintf(writeFilePointer, "EndOfLine\n");
+						strcat(statement_stack, "EndOfLine ");
+						if (loop_detector == 0) {
+                            strcpy(statements_arr[statements_arr_len], statement_stack);
+                            evaluate(statements_arr[statements_arr_len]);
+                            statements_arr_len++;
+                            statement_stack[0] = '\0';
+                        }
+					}
+					else if (strstr(SEPERATOR, ch_str)) {
+						fprintf(writeFilePointer, "Seperator\n");
+						strcat(statement_stack, "Seperator ");
+					}
+					else if (strstr(OPENBLOCK, ch_str)) {
+						fprintf(writeFilePointer, "OpenBlock\n");
+						strcat(statement_stack, "OpenBlock ");
+						loop_detector++;
+					}
+					else if (strstr(CLOSEBLOCK, ch_str)) {
+						fprintf(writeFilePointer, "CloseBlock\n");
+						strcat(statement_stack, "CloseBlock ");
+						loop_detector--;
+						if (loop_detector == 0 ) {
+							strcpy(statements_arr[statements_arr_len], statement_stack);
+							evaluate(statements_arr[statements_arr_len]);
+							statements_arr_len++;
+							statement_stack[0] = '\0';
+						}
+					}
+					source_state = default_state;
+				}
+				else if (strstr(COMMENT_START, ch_str)) {
+					source_state = comment_state;
+				}
+				else if (strstr(QUOTATION MINUS COMMENT_END, ch_str)) {
+					printf("ERROR: Invalid use of token: %s\n", ch_str);
+					break;
+				}
+                else if (ch == '\n'){
+                    //
+                }
+                else {
+                    printf("ERROR: Invalid token: %s\n", ch_str);
+					break;
+                }
+			}
+			else if (source_state.name == "string constant") {
+				// check inputs
+				if (strstr(QUOTATION, ch_str)) {
+					strcat(token_stack, ch_str);
+					fprintf(writeFilePointer, "StringConstant %s\n", token_stack);
+					strcat(statement_stack, "StringConstant ");
+					strcat(statement_stack, token_stack);
+					strcat(statement_stack, " ");
+					token_stack[0] = '\0';
+					source_state = default_state;
+				}
+				else {
+					strcat(token_stack, ch_str);
+				}
+			}
+			else if (source_state.name == "comment") {
+				// check inputs
+				if (strstr(COMMENT_END, ch_str)) {
+					token_stack[0] = '\0';
+					source_state = default_state;
+				}
+				else {
+					// do nothing
+				}
+			}
+			else if (source_state.name == "integer constant") {
+				// check if integer constant is out of bound
+				if (strlen(token_stack) > 100 ) {
+					printf("Length of integer constant is out of bound\n");
+					break;
+				}
+
+				// check inputs
+				if (strstr(ALPHABET QUOTATION COMMENT_END MINUS UNDERSCORE, ch_str)) {
+					printf("ERROR: Invalid use of token: %s\n", ch_str);
+					break;
+				}
+				else if (strstr(DIGITS, ch_str)) {
+					strcat(token_stack, ch_str);
+				}
+				else if (strstr(NON_STATE_CHARS SPACE, ch_str)) { // ] [ , . or space
+					fprintf(writeFilePointer, "IntConstant %s\n", token_stack);
+					strcat(statement_stack, "IntConstant ");
+					strcat(statement_stack, token_stack);
+					strcat(statement_stack, " ");
+
+                    ///// CHECK IF
+
+					token_stack[0] = '\0';
+
+					if (strstr(ENDOFLINE, ch_str)) {
+						fprintf(writeFilePointer, "EndOfLine\n");
+						strcat(statement_stack, "EndOfLine ");
+						if (loop_detector == 0) {
+                            strcpy(statements_arr[statements_arr_len], statement_stack);
+                            evaluate(statements_arr[statements_arr_len]);
+                            statements_arr_len++;
+                            statement_stack[0] = '\0';
+                        }
+					}
+					else if (strstr(SEPERATOR, ch_str)) {
+						fprintf(writeFilePointer, "Seperator\n");
+						strcat(statement_stack, "Seperator ");
+					}
+					else if (strstr(OPENBLOCK, ch_str)) {
+						fprintf(writeFilePointer, "OpenBlock\n");
+						strcat(statement_stack, "OpenBlock ");
+						loop_detector++;
+					}
+					else if (strstr(CLOSEBLOCK, ch_str)) {
+						fprintf(writeFilePointer, "CloseBlock\n");
+						strcat(statement_stack, "CloseBlock ");
+						loop_detector--;
+						if (loop_detector == 0 ) {
+							strcpy(statements_arr[statements_arr_len], statement_stack);
+							evaluate(statements_arr[statements_arr_len]);
+							statements_arr_len++;
+							statement_stack[0] = '\0';
+						}
+					}
+					source_state = default_state;
+				}
+				else if (strstr(COMMENT_START, ch_str)) {
+					source_state = comment_state;
+				}
+                else if (ch == '\n'){
+                    //
+                }
+                else {
+                    printf("ERROR: Invalid token: %s\n", ch_str);
+                    break;
+                }
+			}
+		}
+		// end of file
+		// check if file ended in a comment or string
+		if (source_state.name == "comment" || source_state.name == "string constant") {
+			printf("ERROR: A big lexeme is just left open\n");
+		}
+	}
+
+	fclose(readFilePointer);
+	fclose(writeFilePointer);
+}
+
+/**
+FUNCTION BODY
+**/
 
 int isKeyword(char *str) {
     int keywords_len = 11;
@@ -215,10 +550,10 @@ void declaration(char *tokens[])
 {
     variables[variableIndex] = tokens[3]; // 0 when using, then 1
     values[variableIndex] = 0; // 1
-    // printf("declared %s with value %d\n", variables[variableIndex], values[variableIndex]);
     variableIndex++;
 }
 
+// Addition functionality
 void add(char *token[])
 {
     int index = getIndex(token[7]);
@@ -227,10 +562,9 @@ void add(char *token[])
 
     if(!strcmp(token[2], "IntConstant"))
             values[index] += atoi(token[3]);
-
-    // printf("added %s to %s | new value = %d\n", token[3], variables[index], values[index]);
 }
 
+// Subtraction functionality
 void sub(char *tokens[])
 {
     int index = getIndex(tokens[7]);
@@ -240,10 +574,9 @@ void sub(char *tokens[])
 
     if(!strcmp(tokens[2], "IntConstant"))
             values[index]-= atoi(tokens[3]);
-
-    // printf("subbed %s from %s | new value = %d\n", tokens[3], variables[index], values[index]);
 }
 
+// Loop functionality
 void loop(char *tokens[], int tokens_size, char *type)
 {
     char inside_loop_matris[100][1000];
@@ -312,6 +645,7 @@ void loop(char *tokens[], int tokens_size, char *type)
     }
 }
 
+// Evaluation and Execution
 void evaluate(char *statement) {
     int strconst = 0;
     char *tokens[1000] = {'\0'};
@@ -540,17 +874,6 @@ void evaluate(char *statement) {
                 if (!strcmp(tokens[5], "times")) {
                     if (!strcmp(tokens[6], "OpenBlock")) {
                         loop(tokens, tokens_size, "block");
-                        // if (!strcmp(tokens[6], "OpenBlock")) {
-                        //     if (!strcmp(tokens[tokens_size-1], "CloseBlock")) {
-                        //         printf("call loop()");
-                        //     }
-                        //     else {
-                        //         printf("ERROR at line %d: \n", line);
-                        //         exit(0);
-                        //     }
-                        // }
-                        // else
-                        //     syntaxError(type, "OpenBlock", tokens[5]);
                     }
                     else if (!strcmp(tokens[6], "Keyword")) {
                         loop(tokens, tokens_size, "oneline");
@@ -571,308 +894,4 @@ void evaluate(char *statement) {
         printf("ERROR at line %d: Statement should start with a valid keyword!\n", line);
         exit(0);
     }
-}
-
-void main(int argc, char *argv[]) {
-	char readFilename[256];
-	char writeFilename[256];
-	snprintf(readFilename, sizeof(readFilename), "%s.ba", argv[1]);
-	snprintf(writeFilename, sizeof(writeFilename), "%s.lx", argv[1]);
-
-	STATE source_state = default_state; // FSA starts from default state
-
-	char token_stack[100]; // tokens are written to file from this string
-	token_stack[0] = '\0'; // empty string
-
-	char statement_stack[1000];
-	statement_stack[0] = '\0';
-
-	char statements_arr[100][1000] = {};
-	int statements_arr_len = 0;
-
-	int loop_detector = 0;
-
-	FILE *readFilePointer = fopen(readFilename, "r"); // read files from here
-	FILE *writeFilePointer = fopen(writeFilename, "w"); // write to this file
-	char ch;
-
-	if (readFilePointer == NULL) // check if file exists
-	{
-		printf("ERROR: File is not available\n");
-	}
-	else
-	{
-		// iterate number of characters in file, assign current char to ch
-		while ((ch = fgetc(readFilePointer)) != EOF)
-		{
-            if (ch == '\n') {
-                line++;
-            }
-			// check if char assigned to ch is valid
-            // (ascii -126) used in code
-            // (ascii 126-) may only appear in a comment or string
-			if (ch<0 || ch>125) {
-                if (source_state.name == "comment" || source_state.name == "string constant") {
-					
-                }
-                else {
-                    printf("An unrecognized character is detected in code!\n");
-					break;
-				}
-			}
-
-			char ch_str[2] = {ch, '\0'}; // create string from ch to use it in string.h functions 
-
-			/**
-			NESTED IF ELSE STATEMENTS TO CATCH EVERY POSSIBLE STATE-INPUT COMBINATION;
-			APPLY THE OPERATIONS DEFINED FOR THAT PARTICULAR STATE-INPUT COMBINATION;
-
-			POSSIBLE OPERATIONS
-			-add char to token_stack --> strcat(token_stack, ch_str);
-			-empty token_stack --> token_stack[0] = '\0';
-			-change state --> source_state = ..._state;
-			-write to file --> fprintf(writeFilePointer, "...");
-			-print error message and break loop --> printf("..."); break;
- 			**/
-			if (source_state.name == "default") { // CHECK 
-				if (strstr(ALPHABET, ch_str)) { // DEFAULT_STATE-ALPHABET_INPUT COMBINATION
-					strcat(token_stack, ch_str); 
-					source_state = key_iden_state;
-				}
-				else if (strstr(DIGITS MINUS, ch_str)) {
-					strcat(token_stack, ch_str);
-					source_state = int_const_state;
-				}
-				else if (strstr(NON_STATE_CHARS, ch_str)) { // ] [ , .
-					if (strstr(ENDOFLINE, ch_str)) {
-						fprintf(writeFilePointer, "EndOfLine\n");
-						strcat(statement_stack, "EndOfLine ");
-                        if (loop_detector == 0) {
-                            strcpy(statements_arr[statements_arr_len], statement_stack);
-                            evaluate(statements_arr[statements_arr_len]);
-                            statements_arr_len++;
-                            statement_stack[0] = '\0';
-                        }
-					}
-					else if (strstr(SEPERATOR, ch_str)) {
-						fprintf(writeFilePointer, "Seperator\n");
-						strcat(statement_stack, "Seperator ");
-					}
-					else if (strstr(OPENBLOCK, ch_str)) {
-						fprintf(writeFilePointer, "OpenBlock\n");
-						strcat(statement_stack, "OpenBlock ");
-						loop_detector++;
-					}
-					else if (strstr(CLOSEBLOCK, ch_str)) {
-						fprintf(writeFilePointer, "CloseBlock\n");
-						strcat(statement_stack, "CloseBlock ");
-						loop_detector--;
-						if (loop_detector == 0 ) {
-							strcpy(statements_arr[statements_arr_len], statement_stack);
-							evaluate(statements_arr[statements_arr_len]);
-							statements_arr_len++;
-							statement_stack[0] = '\0';
-						}
-					}
-				}
-				else if (strstr(COMMENT_START, ch_str)) {
-					source_state = comment_state;
-				}
-				else if (strstr(COMMENT_END UNDERSCORE, ch_str)) {
-					printf("ERROR: Invalid use of token: %s\n", ch_str);
-					break;
-				}
-				else if (strstr(QUOTATION, ch_str)) {
-					strcat(token_stack, ch_str);
-					source_state = str_const_state;
-				}
-				else if (strstr(SPACE, ch_str)) {
-					continue;
-				}
-                else if (ch == '\n'){
-                    //
-                }
-                else {
-                    printf("ERROR: Invalid token: %s\n", ch_str);
-					break;
-                }
-			}	
-			else if (source_state.name == "keyword and identifier") {
-				// check if identifier in token_stack is out of bound
-				if (strlen(token_stack) > 20 ) {
-					printf("Length of variable name is out of bound\n");
-					break;
-				}
-
-				// check inputs 
-				if (strstr(ALPHABET DIGITS UNDERSCORE, ch_str)) {
-					strcat(token_stack, ch_str);
-				}
-				else if (strstr(NON_STATE_CHARS SPACE, ch_str)) { // ] [ , . or space
-					
-					if (isKeyword(token_stack)) {
-						fprintf(writeFilePointer, "Keyword %s\n", token_stack);
-						strcat(statement_stack, "Keyword ");
-						strcat(statement_stack, token_stack);
-						strcat(statement_stack, " ");
-					} 
-					else {
-						fprintf(writeFilePointer, "Identifier %s\n", token_stack);
-						strcat(statement_stack, "Identifier ");
-						strcat(statement_stack, token_stack);
-						strcat(statement_stack, " ");
-					}
-
-					token_stack[0] = '\0';
-
-					if (strstr(ENDOFLINE, ch_str)) {
-						fprintf(writeFilePointer, "EndOfLine\n");
-						strcat(statement_stack, "EndOfLine ");
-						if (loop_detector == 0) {
-                            strcpy(statements_arr[statements_arr_len], statement_stack);
-                            evaluate(statements_arr[statements_arr_len]);
-                            statements_arr_len++;
-                            statement_stack[0] = '\0';
-                        }
-					}
-					else if (strstr(SEPERATOR, ch_str)) {
-						fprintf(writeFilePointer, "Seperator\n");
-						strcat(statement_stack, "Seperator ");
-					}
-					else if (strstr(OPENBLOCK, ch_str)) {
-						fprintf(writeFilePointer, "OpenBlock\n");
-						strcat(statement_stack, "OpenBlock ");
-						loop_detector++;
-					}
-					else if (strstr(CLOSEBLOCK, ch_str)) {
-						fprintf(writeFilePointer, "CloseBlock\n");
-						strcat(statement_stack, "CloseBlock ");
-						loop_detector--;
-						if (loop_detector == 0 ) {
-							strcpy(statements_arr[statements_arr_len], statement_stack);
-							evaluate(statements_arr[statements_arr_len]);
-							statements_arr_len++;
-							statement_stack[0] = '\0';
-						}
-					}
-					source_state = default_state;
-				}
-				else if (strstr(COMMENT_START, ch_str)) {
-					source_state = comment_state;
-				}
-				else if (strstr(QUOTATION MINUS COMMENT_END, ch_str)) {
-					printf("ERROR: Invalid use of token: %s\n", ch_str);
-					break;
-				}
-                else if (ch == '\n'){
-                    //
-                }
-                else {
-                    printf("ERROR: Invalid token: %s\n", ch_str);
-					break;
-                }
-			}
-			else if (source_state.name == "string constant") {
-				// check inputs 
-				if (strstr(QUOTATION, ch_str)) {
-					strcat(token_stack, ch_str);
-					fprintf(writeFilePointer, "StringConstant %s\n", token_stack);
-					strcat(statement_stack, "StringConstant ");
-					strcat(statement_stack, token_stack);
-					strcat(statement_stack, " ");
-					token_stack[0] = '\0';
-					source_state = default_state;
-				}
-				else {
-					strcat(token_stack, ch_str);
-				}
-			}
-			else if (source_state.name == "comment") {
-				// check inputs 
-				if (strstr(COMMENT_END, ch_str)) {
-					token_stack[0] = '\0';
-					source_state = default_state;
-				}
-				else {
-					// do nothing
-				}
-			}
-			else if (source_state.name == "integer constant") {
-				// check if integer constant is out of bound
-				if (strlen(token_stack) > 100 ) {
-					printf("Length of integer constant is out of bound\n");
-					break;
-				}
-
-				// check inputs 
-				if (strstr(ALPHABET QUOTATION COMMENT_END MINUS UNDERSCORE, ch_str)) {
-					printf("ERROR: Invalid use of token: %s\n", ch_str);
-					break;
-				}
-				else if (strstr(DIGITS, ch_str)) {
-					strcat(token_stack, ch_str);
-				}
-				else if (strstr(NON_STATE_CHARS SPACE, ch_str)) { // ] [ , . or space
-					fprintf(writeFilePointer, "IntConstant %s\n", token_stack);
-					strcat(statement_stack, "IntConstant ");
-					strcat(statement_stack, token_stack);
-					strcat(statement_stack, " ");
-                    
-                    ///// CHECK IF
-
-					token_stack[0] = '\0';
-
-					if (strstr(ENDOFLINE, ch_str)) {
-						fprintf(writeFilePointer, "EndOfLine\n");
-						strcat(statement_stack, "EndOfLine ");
-						if (loop_detector == 0) {
-                            strcpy(statements_arr[statements_arr_len], statement_stack);
-                            evaluate(statements_arr[statements_arr_len]);
-                            statements_arr_len++;
-                            statement_stack[0] = '\0';
-                        }
-					}
-					else if (strstr(SEPERATOR, ch_str)) {
-						fprintf(writeFilePointer, "Seperator\n");
-						strcat(statement_stack, "Seperator ");
-					}
-					else if (strstr(OPENBLOCK, ch_str)) {
-						fprintf(writeFilePointer, "OpenBlock\n");
-						strcat(statement_stack, "OpenBlock ");
-						loop_detector++;
-					}
-					else if (strstr(CLOSEBLOCK, ch_str)) {
-						fprintf(writeFilePointer, "CloseBlock\n");
-						strcat(statement_stack, "CloseBlock ");
-						loop_detector--;
-						if (loop_detector == 0 ) {
-							strcpy(statements_arr[statements_arr_len], statement_stack);
-							evaluate(statements_arr[statements_arr_len]);
-							statements_arr_len++;
-							statement_stack[0] = '\0';
-						}
-					}
-					source_state = default_state;
-				}
-				else if (strstr(COMMENT_START, ch_str)) {
-					source_state = comment_state;
-				}
-                else if (ch == '\n'){
-                    //
-                }
-                else {
-                    printf("ERROR: Invalid token: %s\n", ch_str);
-                    break;
-                }
-			}
-		}
-		// end of file
-		// check if file ended in a comment or string
-		if (source_state.name == "comment" || source_state.name == "string constant") {
-			printf("ERROR: A big lexeme is just left open\n");
-		}
-	}
-
-	fclose(readFilePointer);
-	fclose(writeFilePointer);
 }
