@@ -19,7 +19,7 @@
 #define QUOTATION "\""
 #define UNDERSCORE "_"
 #define SPACE " "
-#define KEYWORDS "int move to loop times out newline add sub from newline"
+char KEYWORDS[20][20] = {"int", "move", "to", "loop", "times", "out", "newline", "add", "sub", "from", "newline"};
 
 /**
 Instead of initializing a state string variable and modifying it every time;
@@ -41,6 +41,17 @@ char *variables[1000];
 int variableIndex = 0;
 int values[1000] = { 0 };
 int line = 1;
+
+
+int isKeyword(char *str) {
+    int keywords_len = 11;
+    for (int i = 0; i < keywords_len; i++ ) {
+        if (!strcmp(KEYWORDS[i], str)) {
+            return true;
+        }
+    }
+    return false;
+}
 
 char *substring(char *string, int position, int length)
 {
@@ -529,6 +540,14 @@ void evaluate(char *statement) {
 }
 
 void main(int argc, char *argv[]) {
+    // char am[5] = "move";
+    // bool value = isKeyword(am);
+    // if (value) {
+    //     printf("aaaaa");
+    // }
+    // else {
+    //     printf("naaa");
+    // }
     // handle given filename argument
 	char readFilename[256];
 	char writeFilename[256];
@@ -671,7 +690,7 @@ void main(int argc, char *argv[]) {
 				}
 				else if (strstr(NON_STATE_CHARS SPACE, ch_str)) { // ] [ , . or space
 					
-					if (strstr(KEYWORDS, token_stack)) {
+					if (isKeyword(token_stack)) {
 						fprintf(writeFilePointer, "Keyword %s\n", token_stack);
 						strcat(statement_stack, "Keyword ");
 						strcat(statement_stack, token_stack);
