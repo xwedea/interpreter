@@ -341,184 +341,185 @@ void evaluate(char *statement) {
 
     char type[20] = {"\0"};
 
-    // declaration
-    if (!strcmp(tokens[1],"int")) {
-        strcpy(type, "Declaration");
-        // type = "Declaration";
-        // statement_stack = "Keyword int Identifier varname endofline"
-        if (!strcmp(tokens[2], "Identifier")) {
-               // printf("%\n%s\n",tokens[3]);
-               // printf("%\n%d\n",variableExists(tokens[3]));
-               // printf("var %s \n", variables[0]);
-            if (variableExists(tokens[3])) {
-                printf("ERROR at line %d: Double declaration of variable %s\n", line, tokens[3]);
-                exit(0);
+    if (!strcmp(tokens[0], "Keyword")){
+        // declaration
+        if (!strcmp(tokens[1],"int")) {
+            strcpy(type, "Declaration");
+            // statement_stack = "Keyword int Identifier varname endofline"
+            if (!strcmp(tokens[2], "Identifier")) {
+                // printf("%\n%s\n",tokens[3]);
+                // printf("%\n%d\n",variableExists(tokens[3]));
+                // printf("var %s \n", variables[0]);
+                if (variableExists(tokens[3])) {
+                    printf("ERROR at line %d: Double declaration of variable %s\n", line, tokens[3]);
+                    exit(0);
+                }
+                if (!strcmp(tokens[4], "EndOfLine")) {
+                    declaration(tokens);
+                } else {
+                    syntaxError(type, "EndOfLine", tokens[3]);
+                }
             }
-            if (!strcmp(tokens[4], "EndOfLine")) {
-                declaration(tokens);
-            } else {
-                syntaxError(type, "EndOfLine", tokens[3]);
+            else {
+                syntaxError(type, "Identifier", tokens[1]);
             }
         }
-        else {
-            syntaxError(type, "Identifier", tokens[1]);
-        }
-    }
-    // assignment
-    else if (!strcmp(tokens[1],"move")) {
-        strcpy(type, "Assignment");
-        if (!strcmp(tokens[2], "Identifier") || !strcmp(tokens[2], "IntConstant")) {
-            if (!strcmp(tokens[2], "Identifier") && !variableExists(tokens[3]) ) {
-                undeclarationError(tokens[3]);
-            }
-            if (!strcmp(tokens[4], "Keyword") && !strcmp(tokens[5], "to")) {
-                if (!strcmp(tokens[6], "Identifier")) {
-                    if (!variableExists(tokens[7])) {
-                        undeclarationError(tokens[7]);
-                    }
-                    if (!strcmp(tokens[8], "EndOfLine")) {
-                        move(tokens);
+        // assignment
+        else if (!strcmp(tokens[1],"move")) {
+            strcpy(type, "Assignment");
+            if (!strcmp(tokens[2], "Identifier") || !strcmp(tokens[2], "IntConstant")) {
+                if (!strcmp(tokens[2], "Identifier") && !variableExists(tokens[3]) ) {
+                    undeclarationError(tokens[3]);
+                }
+                if (!strcmp(tokens[4], "Keyword") && !strcmp(tokens[5], "to")) {
+                    if (!strcmp(tokens[6], "Identifier")) {
+                        if (!variableExists(tokens[7])) {
+                            undeclarationError(tokens[7]);
+                        }
+                        if (!strcmp(tokens[8], "EndOfLine")) {
+                            move(tokens);
+                        } else {
+                            syntaxError(type, "EndOfLine", tokens[7]);
+                        }
                     } else {
-                        syntaxError(type, "EndOfLine", tokens[7]);
+                        syntaxError(type, "Identifier", tokens[5]);
                     }
                 } else {
-                    syntaxError(type, "Identifier", tokens[5]);
+                    syntaxError(type, "Keyword to", tokens[2]);
                 }
             } else {
-                syntaxError(type, "Keyword to", tokens[2]);
+                syntaxError(type, "Identifier or IntConstant", tokens[1]);
             }
-        } else {
-            syntaxError(type, "Identifier or IntConstant", tokens[1]);
         }
-    }
-    // addition
-    else if (!strcmp(tokens[1],"add")) {
-        strcpy(type, "Addition");
-        if (!strcmp(tokens[2], "Identifier") || !strcmp(tokens[2], "IntConstant")) {
-            if (!strcmp(tokens[2], "Identifier") && !variableExists(tokens[3]) ) {
-                undeclarationError(tokens[3]);
-            }
-            if (!strcmp(tokens[4], "Keyword") && !strcmp(tokens[5], "to")) {
-                if (!strcmp(tokens[6], "Identifier")) {
-                    if (!variableExists(tokens[7])) {
-                        undeclarationError(tokens[7]);
-                    }
-                    if (!strcmp(tokens[8], "EndOfLine")) {
-                        add(tokens);
+        // addition
+        else if (!strcmp(tokens[1],"add")) {
+            strcpy(type, "Addition");
+            if (!strcmp(tokens[2], "Identifier") || !strcmp(tokens[2], "IntConstant")) {
+                if (!strcmp(tokens[2], "Identifier") && !variableExists(tokens[3]) ) {
+                    undeclarationError(tokens[3]);
+                }
+                if (!strcmp(tokens[4], "Keyword") && !strcmp(tokens[5], "to")) {
+                    if (!strcmp(tokens[6], "Identifier")) {
+                        if (!variableExists(tokens[7])) {
+                            undeclarationError(tokens[7]);
+                        }
+                        if (!strcmp(tokens[8], "EndOfLine")) {
+                            add(tokens);
+                        } else {
+                            syntaxError(type, "EndOfLine", tokens[7]);
+                        }
                     } else {
-                        syntaxError(type, "EndOfLine", tokens[7]);
+                        syntaxError(type, "Identifier", tokens[5]);
                     }
                 } else {
-                    syntaxError(type, "Identifier", tokens[5]);
+                    syntaxError(type, "Keyword to", tokens[3]);
                 }
             } else {
-                syntaxError(type, "Keyword to", tokens[3]);
+                syntaxError(type, "Identifier or IntConstant", tokens[1]);
             }
-        } else {
-            syntaxError(type, "Identifier or IntConstant", tokens[1]);
         }
-    }
-    // subtraction
-    else if (!strcmp(tokens[1],"sub")) {
-        strcpy(type, "Subtraction");
-        if (!strcmp(tokens[2], "Identifier") || !strcmp(tokens[2], "IntConstant")) {
-            if (!strcmp(tokens[2], "Identifier") && !variableExists(tokens[3]) ) {
-                undeclarationError(tokens[3]);
-            }
-            if (!strcmp(tokens[4], "Keyword") && !strcmp(tokens[5], "from")) {
-                if (!strcmp(tokens[6], "Identifier")) {
-                    if (!variableExists(tokens[7])) {
-                        undeclarationError(tokens[7]);
-                    }
-                    if (!strcmp(tokens[8], "EndOfLine")) {
-                        sub(tokens);
+        // subtraction
+        else if (!strcmp(tokens[1],"sub")) {
+            strcpy(type, "Subtraction");
+            if (!strcmp(tokens[2], "Identifier") || !strcmp(tokens[2], "IntConstant")) {
+                if (!strcmp(tokens[2], "Identifier") && !variableExists(tokens[3]) ) {
+                    undeclarationError(tokens[3]);
+                }
+                if (!strcmp(tokens[4], "Keyword") && !strcmp(tokens[5], "from")) {
+                    if (!strcmp(tokens[6], "Identifier")) {
+                        if (!variableExists(tokens[7])) {
+                            undeclarationError(tokens[7]);
+                        }
+                        if (!strcmp(tokens[8], "EndOfLine")) {
+                            sub(tokens);
+                        } else {
+                            syntaxError(type, "EndOfLine", tokens[7]);
+                        }
                     } else {
-                        syntaxError(type, "EndOfLine", tokens[7]);
+                        syntaxError(type, "Identifier", tokens[5]);
                     }
                 } else {
-                    syntaxError(type, "Identifier", tokens[5]);
+                    syntaxError(type, "Keyword from", tokens[3]);
                 }
             } else {
-                syntaxError(type, "Keyword from", tokens[3]);
+                syntaxError(type, "Identifier or IntConstant", tokens[1]);
             }
-        } else {
-            syntaxError(type, "Identifier or IntConstant", tokens[1]);
         }
-    }
-    // output
-    else if (!strcmp(tokens[1],"out")) {
-        out(tokens, tokens_size);
-        // if ((tokens_size -2) % 3 != 0) {
-        //     printf("ERROR: line: %d | Invalid out syntax\n", line);
-        //     exit(0);
-        // }
-        // int outsize = (tokens_size - 2) / 3; // how many inputs does output statement have
-        // for (int i = 1; i <= outsize; i++) {
-        //     if (i != outsize && !strcmp(tokens[i*3 + 1], "Seperator")) {
-        //         if(!strcmp(tokens[i*3 -1], "Identifier") || !strcmp(tokens[i*3 -1], "Keyword") || !strcmp(tokens[i*3 -1], "StringConstant") || !strcmp(tokens[i*3 -1], "IntConstant")) {
-        //             if (!variableExists(tokens[i*3]) && !strcmp(tokens[i * 3 - 1], "Identifier"))
-        //                 undeclarationError(tokens[i * 3]);
-        //             if (!strcmp(tokens[i*3 -1], "Keyword") && strcmp(tokens[i*3], "newline")){
-        //                 printf("ERROR: line: %d | Invalid Keyword in out statement\n", line, tokens[i*3]);
-        //                 exit(0);
-        //             }
-        //             continue;
-        //         }
-        //     }
-        //     else if (i == outsize && !strcmp(tokens[i*3 + 1], "EndOfLine")) {
-        //         if(!strcmp(tokens[i*3 -1], "Identifier") || !strcmp(tokens[i*3 -1], "Keyword") || !strcmp(tokens[i*3 -1], "StringConstant") || !strcmp(tokens[i*3 -1], "IntConstant")) {
-        //             if (!variableExists(tokens[i*3]) && !strcmp(tokens[i * 3 - 1], "Identifier"))
-        //                 undeclarationError(tokens[i * 3]);
-        //             if (!strcmp(tokens[i*3 -1], "Keyword") && strcmp(tokens[i*3], "newline")){
-        //                 printf("ERROR: line: %d | Keyword %s is not a valid input for out statement\n", line, tokens[i*3]);
-        //                 exit(0);
-        //             }
-        //             out(tokens);
-        //         }
-        //     }
-        //     else {
-        //         if (strcmp(tokens[i*3 +1], "Seperator"))
-        //             printf("ERROR: line: %d | Out inputs should be seperated by commas.\n", line);
-        //         else if (strcmp(tokens[i*3 +1], "EndOfLine")){
-        //             printf("ERROR: line: %d | Out inputs should end with EndOfLine\n", line);
-        //         }
-        //         exit(0);
-        //     }
-        // }
-    }
-    // loop
-    else if (!strcmp(tokens[1],"loop")) {
-        if (!strcmp(tokens[2], "Identifier") || !strcmp(tokens[2], "IntConstant")) {
-            if (!strcmp(tokens[2], "Identifier") && !variableExists(tokens[3]) )
-                undeclarationError(tokens[3]);
+        // output
+        else if (!strcmp(tokens[1],"out")) {
+            out(tokens, tokens_size);
+            // if ((tokens_size -2) % 3 != 0) {
+            //     printf("ERROR: line: %d | Invalid out syntax\n", line);
+            //     exit(0);
+            // }
+            // int outsize = (tokens_size - 2) / 3; // how many inputs does output statement have
+            // for (int i = 1; i <= outsize; i++) {
+            //     if (i != outsize && !strcmp(tokens[i*3 + 1], "Seperator")) {
+            //         if(!strcmp(tokens[i*3 -1], "Identifier") || !strcmp(tokens[i*3 -1], "Keyword") || !strcmp(tokens[i*3 -1], "StringConstant") || !strcmp(tokens[i*3 -1], "IntConstant")) {
+            //             if (!variableExists(tokens[i*3]) && !strcmp(tokens[i * 3 - 1], "Identifier"))
+            //                 undeclarationError(tokens[i * 3]);
+            //             if (!strcmp(tokens[i*3 -1], "Keyword") && strcmp(tokens[i*3], "newline")){
+            //                 printf("ERROR: line: %d | Invalid Keyword in out statement\n", line, tokens[i*3]);
+            //                 exit(0);
+            //             }
+            //             continue;
+            //         }
+            //     }
+            //     else if (i == outsize && !strcmp(tokens[i*3 + 1], "EndOfLine")) {
+            //         if(!strcmp(tokens[i*3 -1], "Identifier") || !strcmp(tokens[i*3 -1], "Keyword") || !strcmp(tokens[i*3 -1], "StringConstant") || !strcmp(tokens[i*3 -1], "IntConstant")) {
+            //             if (!variableExists(tokens[i*3]) && !strcmp(tokens[i * 3 - 1], "Identifier"))
+            //                 undeclarationError(tokens[i * 3]);
+            //             if (!strcmp(tokens[i*3 -1], "Keyword") && strcmp(tokens[i*3], "newline")){
+            //                 printf("ERROR: line: %d | Keyword %s is not a valid input for out statement\n", line, tokens[i*3]);
+            //                 exit(0);
+            //             }
+            //             out(tokens);
+            //         }
+            //     }
+            //     else {
+            //         if (strcmp(tokens[i*3 +1], "Seperator"))
+            //             printf("ERROR: line: %d | Out inputs should be seperated by commas.\n", line);
+            //         else if (strcmp(tokens[i*3 +1], "EndOfLine")){
+            //             printf("ERROR: line: %d | Out inputs should end with EndOfLine\n", line);
+            //         }
+            //         exit(0);
+            //     }
+            // }
+        }
+        // loop
+        else if (!strcmp(tokens[1],"loop")) {
+            if (!strcmp(tokens[2], "Identifier") || !strcmp(tokens[2], "IntConstant")) {
+                if (!strcmp(tokens[2], "Identifier") && !variableExists(tokens[3]) )
+                    undeclarationError(tokens[3]);
 
-            if (!strcmp(tokens[5], "times")) {
-                if (!strcmp(tokens[6], "OpenBlock")) {
-                    loop(tokens, tokens_size, "block");
-                    // if (!strcmp(tokens[6], "OpenBlock")) {
-                    //     if (!strcmp(tokens[tokens_size-1], "CloseBlock")) {
-                    //         printf("call loop()");
-                    //     }
-                    //     else {
-                    //         printf("ERROR at line %d: \n", line);
-                    //         exit(0);
-                    //     }
-                    // }
-                    // else
-                    //     syntaxError(type, "OpenBlock", tokens[5]);
-                }
-                else if (!strcmp(tokens[6], "Keyword")) {
-                    loop(tokens, tokens_size, "oneline");
+                if (!strcmp(tokens[5], "times")) {
+                    if (!strcmp(tokens[6], "OpenBlock")) {
+                        loop(tokens, tokens_size, "block");
+                        // if (!strcmp(tokens[6], "OpenBlock")) {
+                        //     if (!strcmp(tokens[tokens_size-1], "CloseBlock")) {
+                        //         printf("call loop()");
+                        //     }
+                        //     else {
+                        //         printf("ERROR at line %d: \n", line);
+                        //         exit(0);
+                        //     }
+                        // }
+                        // else
+                        //     syntaxError(type, "OpenBlock", tokens[5]);
+                    }
+                    else if (!strcmp(tokens[6], "Keyword")) {
+                        loop(tokens, tokens_size, "oneline");
+                    }
+                    else
+                        syntaxError(type, "OpenBlock or a starting Keyword", tokens[5]);
                 }
                 else
-                    syntaxError(type, "OpenBlock or a starting Keyword", tokens[5]);
-            }
-            else
-                syntaxError(type, "Keyword times", tokens[4]);
+                    syntaxError(type, "Keyword times", tokens[4]);
 
-        }
-        else {
-            syntaxError(type, "Identifier or IntConstant", tokens[1]);
+            }
+            else {
+                syntaxError(type, "Identifier or IntConstant", tokens[1]);
+            }
         }
     }
     else {
