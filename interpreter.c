@@ -36,12 +36,10 @@ STATE str_const_state = {"string constant"};
 STATE comment_state = {"comment"};
 STATE int_const_state = {"integer constant"};
 
-
 char *variables[1000];
 int variableIndex = 0;
 int values[1000] = { 0 };
 int line = 1;
-
 
 int isKeyword(char *str) {
     int keywords_len = 11;
@@ -95,18 +93,6 @@ void syntaxError(char type[], char expected[], char previous[]) {
     printf("ERROR: line: %d | Unvalid %s statement => %s expected after %s.\n", line, type, expected, previous);
     exit(0);
 }
-
-
-// !!SPLIT FUNCTION IS NOT FULLY WORKING!!
-// Split function
-// void split(char *token[], char *target[1000]){
-//     int wordCount = 0;
-//     char *splitedWords = strtok(token, " ");
-//     while (splitedWords != NULL) {
-//         target[wordCount++] = splitedWords;
-//         splitedWords = strtok(NULL, " ");
-//     }
-// }
 
 // Getting the index of a variable by the name of it
 int getIndex (char *name)
@@ -227,10 +213,9 @@ void out(char *tokens[], int tokens_size)
 // Declaration functionality
 void declaration(char *tokens[])
 {
-	// printf("%s\n", tokens[3]);
     variables[variableIndex] = tokens[3]; // 0 when using, then 1
     values[variableIndex] = 0; // 1
-    printf("declared %s with value %d\n", variables[variableIndex], values[variableIndex]);
+    // printf("declared %s with value %d\n", variables[variableIndex], values[variableIndex]);
     variableIndex++;
 }
 
@@ -243,7 +228,7 @@ void add(char *token[])
     if(!strcmp(token[2], "IntConstant"))
             values[index] += atoi(token[3]);
 
-    printf("added %s to %s | new value = %d\n", token[3], variables[index], values[index]);
+    // printf("added %s to %s | new value = %d\n", token[3], variables[index], values[index]);
 }
 
 void sub(char *tokens[])
@@ -256,7 +241,7 @@ void sub(char *tokens[])
     if(!strcmp(tokens[2], "IntConstant"))
             values[index]-= atoi(tokens[3]);
 
-    printf("subbed %s from %s | new value = %d\n", tokens[3], variables[index], values[index]);
+    // printf("subbed %s from %s | new value = %d\n", tokens[3], variables[index], values[index]);
 }
 
 void loop(char *tokens[], int tokens_size, char *type)
@@ -274,11 +259,8 @@ void loop(char *tokens[], int tokens_size, char *type)
         identifier_index = getIndex(tokens[3]);
         times = values[identifier_index];
     }
-
-
     else if(!strcmp(tokens[2], "IntConstant"))
         times = atoi(tokens[3]);
-
 
     if (!strcmp("oneline", type)) {
         for (int i = 6; i < tokens_size; i++) {
@@ -288,7 +270,6 @@ void loop(char *tokens[], int tokens_size, char *type)
             }
         }
         lines = 1;
-        // printf("%s\n", inside_loop_matris[0]);
     }
     else if (!strcmp("block", type)) {
         int looper = 0;
@@ -309,7 +290,6 @@ void loop(char *tokens[], int tokens_size, char *type)
             else if(!strcmp("EndOfLine", tokens[i]) && looper == 0){
                 lines++;
             }
-            // printf("looper: %d | token:  %s \n", looper, tokens[i]);
         }
     }
 
@@ -325,7 +305,6 @@ void loop(char *tokens[], int tokens_size, char *type)
     }
 
     for (int i = 0; i < run_len; i++) {
-        // printf("statement: %s\n", run[i]);
         evaluate(run[i]);
         if(!strcmp(tokens[2], "Identifier") && i%(lines) == lines - 1) {
             values[identifier_index]--;
@@ -345,22 +324,13 @@ void evaluate(char *statement) {
         tokens_size++;
     }
 
-    // for (int i = 0; i < tokens_size; i++) {
-    //     printf("%s ", tokens[i]);
-    // }
-    // printf("tokens[3]: %s\n", tokens[3]);
-
     char type[20] = {"\0"};
 
     if (!strcmp(tokens[0], "Keyword")){
         // declaration
         if (!strcmp(tokens[1],"int")) {
             strcpy(type, "Declaration");
-            // statement_stack = "Keyword int Identifier varname endofline"
             if (!strcmp(tokens[2], "Identifier")) {
-                // printf("%\n%s\n",tokens[3]);
-                // printf("%\n%d\n",variableExists(tokens[3]));
-                // printf("var %s \n", variables[0]);
                 if (variableExists(tokens[3])) {
                     printf("ERROR at line %d: Double declaration of variable %s\n", line, tokens[3]);
                     exit(0);
@@ -540,15 +510,6 @@ void evaluate(char *statement) {
 }
 
 void main(int argc, char *argv[]) {
-    // char am[5] = "move";
-    // bool value = isKeyword(am);
-    // if (value) {
-    //     printf("aaaaa");
-    // }
-    // else {
-    //     printf("naaa");
-    // }
-    // handle given filename argument
 	char readFilename[256];
 	char writeFilename[256];
 	snprintf(readFilename, sizeof(readFilename), "%s.ba", argv[1]);
@@ -594,14 +555,9 @@ void main(int argc, char *argv[]) {
                     printf("An unrecognized character is detected in code!\n");
 					break;
 				}
-				// if (strstr(ALPHABET QU ch);
-				//     break;
-                // }
 			}
 
 			char ch_str[2] = {ch, '\0'}; // create string from ch to use it in string.h functions 
-
-			// printf("%s | %s -> ", ch_str, source_state.name);
 
 			/**
 			NESTED IF ELSE STATEMENTS TO CATCH EVERY POSSIBLE STATE-INPUT COMBINATION;
@@ -833,7 +789,6 @@ void main(int argc, char *argv[]) {
 						}
 					}
 					source_state = default_state;
-
 				}
 				else if (strstr(COMMENT_START, ch_str)) {
 					source_state = comment_state;
@@ -845,9 +800,7 @@ void main(int argc, char *argv[]) {
                     printf("ERROR: Invalid token: %s\n", ch_str);
                     break;
                 }
-				
 			}
-
 		}
 		// end of file
 		// check if file ended in a comment or string
@@ -855,8 +808,7 @@ void main(int argc, char *argv[]) {
 			printf("ERROR: A big lexeme is just left open\n");
 		}
 	}
-	
-	// close files
+
 	fclose(readFilePointer);
 	fclose(writeFilePointer);
 }
