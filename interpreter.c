@@ -40,7 +40,7 @@ STATE int_const_state = {"integer constant"};
 char *variables[1000];
 int variableIndex = 0;
 int values[1000] = { 0 };
-int line = 0;
+int line = 1;
 
 bool variableExists(char *variable){
     if(variableIndex == 0)
@@ -513,6 +513,9 @@ void main(int argc, char *argv[]) {
 		// iterate number of characters in file, assign current char to ch
 		while ((ch = fgetc(readFilePointer)) != EOF)
 		{
+            if (ch == '\n') {
+                line++;
+            }
 			// check if char assigned to ch is valid
             // (ascii -126) used in code
             // (ascii 126-) may only appear in a comment or string
