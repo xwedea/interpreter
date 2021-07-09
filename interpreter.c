@@ -602,6 +602,13 @@ void main(int argc, char *argv[]) {
 				else if (strstr(SPACE, ch_str)) {
 					continue;
 				}
+                else if (ch == '\n'){
+                    //
+                }
+                else {
+                    printf("ERROR: Invalid token: %s\n", ch_str);
+					break;
+                }
 			}	
 			else if (source_state.name == "keyword and identifier") {
 				// check if identifier in token_stack is out of bound
@@ -670,6 +677,13 @@ void main(int argc, char *argv[]) {
 					printf("ERROR: Invalid use of token: %s\n", ch_str);
 					break;
 				}
+                else if (ch == '\n'){
+                    //
+                }
+                else {
+                    printf("ERROR: Invalid token: %s\n", ch_str);
+					break;
+                }
 			}
 			else if (source_state.name == "string constant") {
 				// check inputs 
@@ -757,6 +771,13 @@ void main(int argc, char *argv[]) {
 				else if (strstr(COMMENT_START, ch_str)) {
 					source_state = comment_state;
 				}
+                else if (ch == '\n'){
+                    //
+                }
+                else {
+                    printf("ERROR: Invalid token: %s\n", ch_str);
+                    break;
+                }
 				
 			}
 
