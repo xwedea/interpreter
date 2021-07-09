@@ -115,7 +115,7 @@ void move(char *token[])
     if(!strcmp(token[2], "IntConstant"))
             values[index] = atoi(token[3]);
 
-    printf("Moved %d to %s\n", values[index], variables[index]);
+    // printf("Moved %d to %s\n", values[index], variables[index]);
 }
 
 // Print functionality
