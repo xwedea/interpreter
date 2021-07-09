@@ -98,31 +98,68 @@ void move(char *token[])
 }
 
 // Print functionality
-void out(char *token[])
+void out(char *tokens[], int tokens_size)
 {
+    char new_tokens[1000][1000];
+    int new_tokens_len = 0;
+
+    char string_holder[1000];
+    int holder_len = 0;
+
+    int str = 0;
+
+    for (int i = 0; i < tokens_size; i++) {        
+
+        if (str == 0) {
+            if (strstr(tokens[i],"\"")) {
+                strcat(string_holder, tokens[i]);
+                holder_len++;
+                str++;
+            }
+            else { 
+                strcpy(new_tokens[new_tokens_len], tokens[i]); 
+            }
+        }
+        else if (str == 1) {
+            if (strstr(tokens[i],"\"")) {
+                strcat(string_holder, tokens[i]);
+                strcpy(new_tokens[new_tokens_len], string_holder);
+                string_holder[0] = '\0';
+                holder_len = 0;
+                str--;
+            }
+            else {
+                strcat(string_holder, tokens[i]);   
+            }
+        }
+        else {
+            printf("never should have come here");
+        }
+    }
+
     int counter = 0;
     // Looping through the array and execute all the possible executables
-    while (token[counter] != NULL)
+    while (tokens[counter] != NULL)
     {
-        if(!strcmp(token[counter], "Seperator"))
+        if(!strcmp(tokens[counter], "Seperator"))
         {
             counter++;
             continue;
         }
-        else if(!strcmp(token[counter], "Identifier"))
-            printf("%d ", values[getIndex(token[counter + 1])]);
-        else if(!strcmp(token[counter], "IntConstant"))
-            printf("%s ", token[counter + 1]);
-        else if(!strcmp(token[counter], "newline"))
+        else if(!strcmp(tokens[counter], "Identifier"))
+            printf("%d ", values[getIndex(tokens[counter + 1])]);
+        else if(!strcmp(tokens[counter], "IntConstant"))
+            printf("%s ", tokens[counter + 1]);
+        else if(!strcmp(tokens[counter], "newline"))
             printf("\n");
-        else if(!strcmp(token[counter], "StringConstant"))
+        else if(!strcmp(tokens[counter], "StringConstant"))
         {
-            while (token[counter] != NULL && strcmp(token[counter + 1], "Seperator"))
+            while (tokens[counter] != NULL && strcmp(tokens[counter + 1], "Seperator"))
             {
                counter++;
-               if(!strcmp(token[counter], "EndOfLine"))
+               if(!strcmp(tokens[counter], "EndOfLine"))
                     break;
-               printf("%s ", token[counter]);
+               printf("%s ", tokens[counter]);
             }
         }
         counter++;
@@ -239,6 +276,7 @@ void loop(char *tokens[], int tokens_size, char *type)
 }
 
 void evaluate(char *statement) {
+    int strconst = 0;
     char *tokens[1000] = {'\0'};
     int tokens_size = 0;
     int wordCount = 0;
@@ -362,44 +400,44 @@ void evaluate(char *statement) {
     }
     // output
     else if (!strcmp(tokens[1],"out")) {
-        out(tokens);
-        /*if ((tokens_size -2) % 3 != 0){
-            printf("ERROR: line: %d | Invalid out syntax\n", line);
-            exit(0);
-        }
-        int outsize = (tokens_size - 2) / 3; // how many inputs does output statement have
-        for (int i = 1; i <= outsize; i++) {
-            if (i != outsize && !strcmp(tokens[i*3 + 1], "Seperator")) {
-                if(!strcmp(tokens[i*3 -1], "Identifier") || !strcmp(tokens[i*3 -1], "Keyword") || !strcmp(tokens[i*3 -1], "StringConstant") || !strcmp(tokens[i*3 -1], "IntConstant")) {
-                    if (!variableExists(tokens[i*3]) && !strcmp(tokens[i * 3 - 1], "Identifier"))
-                        undeclarationError(tokens[i * 3]);
-                    if (!strcmp(tokens[i*3 -1], "Keyword") && strcmp(tokens[i*3], "newline")){
-                        printf("ERROR: line: %d | Invalid Keyword in out statement\n", line, tokens[i*3]);
-                        exit(0);
-                    }
-                    continue;
-                }
-            }
-            else if (i == outsize && !strcmp(tokens[i*3 + 1], "EndOfLine")) {
-                if(!strcmp(tokens[i*3 -1], "Identifier") || !strcmp(tokens[i*3 -1], "Keyword") || !strcmp(tokens[i*3 -1], "StringConstant") || !strcmp(tokens[i*3 -1], "IntConstant")) {
-                    if (!variableExists(tokens[i*3]) && !strcmp(tokens[i * 3 - 1], "Identifier"))
-                        undeclarationError(tokens[i * 3]);
-                    if (!strcmp(tokens[i*3 -1], "Keyword") && strcmp(tokens[i*3], "newline")){
-                        printf("ERROR: line: %d | Keyword %s is not a valid input for out statement\n", line, tokens[i*3]);
-                        exit(0);
-                    }
-                    out(tokens);
-                }
-            }
-            else {
-                if (strcmp(tokens[i*3 +1], "Seperator"))
-                    printf("ERROR: line: %d | Out inputs should be seperated by commas.\n", line);
-                else if (strcmp(tokens[i*3 +1], "EndOfLine")){
-                    printf("ERROR: line: %d | Out inputs should end with EndOfLine\n", line);
-                }
-                exit(0);
-            }
-        }*/
+        out(tokens, tokens_size);
+        // if ((tokens_size -2) % 3 != 0) {
+        //     printf("ERROR: line: %d | Invalid out syntax\n", line);
+        //     exit(0);
+        // }
+        // int outsize = (tokens_size - 2) / 3; // how many inputs does output statement have
+        // for (int i = 1; i <= outsize; i++) {
+        //     if (i != outsize && !strcmp(tokens[i*3 + 1], "Seperator")) {
+        //         if(!strcmp(tokens[i*3 -1], "Identifier") || !strcmp(tokens[i*3 -1], "Keyword") || !strcmp(tokens[i*3 -1], "StringConstant") || !strcmp(tokens[i*3 -1], "IntConstant")) {
+        //             if (!variableExists(tokens[i*3]) && !strcmp(tokens[i * 3 - 1], "Identifier"))
+        //                 undeclarationError(tokens[i * 3]);
+        //             if (!strcmp(tokens[i*3 -1], "Keyword") && strcmp(tokens[i*3], "newline")){
+        //                 printf("ERROR: line: %d | Invalid Keyword in out statement\n", line, tokens[i*3]);
+        //                 exit(0);
+        //             }
+        //             continue;
+        //         }
+        //     }
+        //     else if (i == outsize && !strcmp(tokens[i*3 + 1], "EndOfLine")) {
+        //         if(!strcmp(tokens[i*3 -1], "Identifier") || !strcmp(tokens[i*3 -1], "Keyword") || !strcmp(tokens[i*3 -1], "StringConstant") || !strcmp(tokens[i*3 -1], "IntConstant")) {
+        //             if (!variableExists(tokens[i*3]) && !strcmp(tokens[i * 3 - 1], "Identifier"))
+        //                 undeclarationError(tokens[i * 3]);
+        //             if (!strcmp(tokens[i*3 -1], "Keyword") && strcmp(tokens[i*3], "newline")){
+        //                 printf("ERROR: line: %d | Keyword %s is not a valid input for out statement\n", line, tokens[i*3]);
+        //                 exit(0);
+        //             }
+        //             out(tokens);
+        //         }
+        //     }
+        //     else {
+        //         if (strcmp(tokens[i*3 +1], "Seperator"))
+        //             printf("ERROR: line: %d | Out inputs should be seperated by commas.\n", line);
+        //         else if (strcmp(tokens[i*3 +1], "EndOfLine")){
+        //             printf("ERROR: line: %d | Out inputs should end with EndOfLine\n", line);
+        //         }
+        //         exit(0);
+        //     }
+        // }
     }
     // loop
     else if (!strcmp(tokens[1],"loop")) {
