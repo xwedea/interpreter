@@ -108,7 +108,7 @@ void out(char *tokens[], int tokens_size)
 
     int str = 0;
 
-    for (int i = 0; i < tokens_size; i++) {        
+    for (int i = 0; i < tokens_size; i++) {
 
         if (str == 0) {
             if (strstr(tokens[i],"\"")) {
@@ -116,8 +116,8 @@ void out(char *tokens[], int tokens_size)
                 holder_len++;
                 str++;
             }
-            else { 
-                strcpy(new_tokens[new_tokens_len], tokens[i]); 
+            else {
+                strcpy(new_tokens[new_tokens_len], tokens[i]);
             }
         }
         else if (str == 1) {
@@ -129,14 +129,13 @@ void out(char *tokens[], int tokens_size)
                 str--;
             }
             else {
-                strcat(string_holder, tokens[i]);   
+                strcat(string_holder, tokens[i]);
             }
         }
         else {
             printf("never should have come here");
         }
     }
-
     int counter = 0;
     // Looping through the array and execute all the possible executables
     while (tokens[counter] != NULL)
@@ -159,7 +158,31 @@ void out(char *tokens[], int tokens_size)
                counter++;
                if(!strcmp(tokens[counter], "EndOfLine"))
                     break;
-               printf("%s ", tokens[counter]);
+               if(holder_len == 1 && (!strcmp(tokens[counter + 1], "Seperator") || !strcmp(tokens[counter], "EndOfLine")))
+               {
+                  char *temp = substring(tokens[counter], 2, strlen(tokens[counter]) - 2);
+                  printf("%s ",temp);
+                  temp = "";
+               }
+
+               else
+               {
+                   if(counter == 6)
+                   {
+                       char *temp = substring(tokens[counter], 2, strlen(tokens[counter]));
+                       printf("%s ",temp);
+                   }
+                   else if((!strcmp(tokens[counter + 1], "Seperator") || !strcmp(tokens[counter], "EndOfLine")))
+                   {
+                       char *temp = substring(tokens[counter], 1, strlen(tokens[counter]) - 1);
+                       printf("%s ",temp);
+                   }
+                   else
+                   {
+                       printf("%s ", tokens[counter]);
+                   }
+               }
+
             }
         }
         counter++;
