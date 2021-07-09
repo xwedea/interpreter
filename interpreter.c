@@ -457,46 +457,110 @@ void evaluate(char *statement) {
             }
         }
         // output
-        else if (!strcmp(tokens[1],"out")) {
-            out(tokens, tokens_size);
-            // if ((tokens_size -2) % 3 != 0) {
-            //     printf("ERROR: line: %d | Invalid out syntax\n", line);
-            //     exit(0);
-            // }
-            // int outsize = (tokens_size - 2) / 3; // how many inputs does output statement have
-            // for (int i = 1; i <= outsize; i++) {
-            //     if (i != outsize && !strcmp(tokens[i*3 + 1], "Seperator")) {
-            //         if(!strcmp(tokens[i*3 -1], "Identifier") || !strcmp(tokens[i*3 -1], "Keyword") || !strcmp(tokens[i*3 -1], "StringConstant") || !strcmp(tokens[i*3 -1], "IntConstant")) {
-            //             if (!variableExists(tokens[i*3]) && !strcmp(tokens[i * 3 - 1], "Identifier"))
-            //                 undeclarationError(tokens[i * 3]);
-            //             if (!strcmp(tokens[i*3 -1], "Keyword") && strcmp(tokens[i*3], "newline")){
-            //                 printf("ERROR: line: %d | Invalid Keyword in out statement\n", line, tokens[i*3]);
-            //                 exit(0);
-            //             }
-            //             continue;
-            //         }
-            //     }
-            //     else if (i == outsize && !strcmp(tokens[i*3 + 1], "EndOfLine")) {
-            //         if(!strcmp(tokens[i*3 -1], "Identifier") || !strcmp(tokens[i*3 -1], "Keyword") || !strcmp(tokens[i*3 -1], "StringConstant") || !strcmp(tokens[i*3 -1], "IntConstant")) {
-            //             if (!variableExists(tokens[i*3]) && !strcmp(tokens[i * 3 - 1], "Identifier"))
-            //                 undeclarationError(tokens[i * 3]);
-            //             if (!strcmp(tokens[i*3 -1], "Keyword") && strcmp(tokens[i*3], "newline")){
-            //                 printf("ERROR: line: %d | Keyword %s is not a valid input for out statement\n", line, tokens[i*3]);
-            //                 exit(0);
-            //             }
-            //             out(tokens);
-            //         }
-            //     }
-            //     else {
-            //         if (strcmp(tokens[i*3 +1], "Seperator"))
-            //             printf("ERROR: line: %d | Out inputs should be seperated by commas.\n", line);
-            //         else if (strcmp(tokens[i*3 +1], "EndOfLine")){
-            //             printf("ERROR: line: %d | Out inputs should end with EndOfLine\n", line);
-            //         }
-            //         exit(0);
-            //     }
-            // }
+    else if (!strcmp(tokens[1],"out")) {
+        int counter = 2;
+        while (tokens[counter] != NULL)
+        {
+            if(!strcmp(tokens[counter],"Keyword"))
+            {
+                if(!strcmp(tokens[counter + 1],"newline"))
+                {
+                    if(!strcmp(tokens[counter + 2],"EndOfLine") || !strcmp(tokens[counter + 2],"Seperator"))
+                    {
+                        counter += 2;
+                        continue;
+                    }
+                    else
+                    {
+                        printf("ERROR: line: %d | Invalid out syntax\n", line);
+                        exit(0);
+                    }
+
+                }
+                else
+                {
+                    printf("ERROR: line: %d | Invalid out syntax\n", line);
+                    exit(0);
+                }
+            }
+            else if(!strcmp(tokens[counter],"IntConstant"))
+            {
+                if(atoi(tokens[counter + 1]) != NULL)
+                {
+                    if(!strcmp(tokens[counter + 2],"EndOfLine") || !strcmp(tokens[counter + 2],"Seperator"))
+                    {
+                        counter += 2;
+                        continue;
+                    }
+                    else
+                    {
+                        printf("ERROR: line: %d | Invalid out syntax\n", line);
+                        exit(0);
+                    }
+                }
+                else
+                {
+                    printf("ERROR: line: %d | Invalid out syntax\n", line);
+                    exit(0);
+                }
+
+            }
+            else if(!strcmp(tokens[counter],"Identifier"))
+            {
+                if(variableExists(tokens[counter + 1]))
+                {
+                    if(!strcmp(tokens[counter + 2],"EndOfLine") || !strcmp(tokens[counter + 2],"Seperator"))
+                    {
+                        counter += 2;
+                        continue;
+                    }
+                    else
+                    {
+                        printf("ERROR: line: %d | Invalid out syntax\n", line);
+                        exit(0);
+                    }
+                }
+                else
+                {
+                    printf("ERROR: line: %d | Variable does not existed!\n", line);
+                    exit(0);
+                }
+            }
+            else if(!strcmp(tokens[counter],"StringConstant"))
+            {
+                counter++;
+                while (strcmp(tokens[counter], "EndOfLine"))
+                {
+
+                    if(!strcmp(tokens[counter], "Seperator"))
+                    {
+                        counter++;
+                        break;
+                    }
+                    counter++;
+
+                }
+                if(!strcmp(tokens[counter], "Identifier") || !strcmp(tokens[counter], "Keyword") ||
+                    !strcmp(tokens[counter], "IntConstant") || !strcmp(tokens[counter], "StringConstant") ||
+                    !strcmp(tokens[counter], "EndOfLine") || !strcmp(tokens[counter], "Seperator"))
+                {
+                    continue;
+                }
+                else
+                {
+                    printf("ERROR: line: %d | Seprater does not exist!\n", line);
+                    exit(0);
+                }
+            }
+            counter++;
         }
+
+        if(!strcmp(tokens[counter - 1], "EndOfLine") && strcmp(tokens[counter - 2], "Seperator"))
+           out(tokens, tokens_size);
+
+        else
+           printf("ERROR: line: %d | Invalid out syntax\n", line);
+    }
         // loop
         else if (!strcmp(tokens[1],"loop")) {
             if (!strcmp(tokens[2], "Identifier") || !strcmp(tokens[2], "IntConstant")) {
