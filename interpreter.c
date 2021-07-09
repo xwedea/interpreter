@@ -211,10 +211,6 @@ void loop(char *tokens[], int tokens_size, char *type)
         }
     }
 
-    for (int i = 0; i < lines; i++) {
-        // printf("%s\n", inside_loop_matris[i]);
-    }
-
     char run[1000][1000];
     int run_len = times * lines;
 
@@ -229,7 +225,7 @@ void loop(char *tokens[], int tokens_size, char *type)
     for (int i = 0; i < run_len; i++) {
         // printf("statement: %s\n", run[i]);
         evaluate(run[i]);
-        if(!strcmp(tokens[2], "Identifier")) {
+        if(!strcmp(tokens[2], "Identifier") && i%(lines) == lines - 1) {
             values[identifier_index]--;
         }
     }
