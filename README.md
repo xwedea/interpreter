@@ -1,2 +1,2 @@
 # interpreter
-An interpreter implementation
+An interpreter implementation with C
